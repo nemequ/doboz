@@ -19,9 +19,11 @@ int main()
 	SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
 
 	// Read input file
+	//FILE* f = fopen("..\\..\\..\\Data\\funnyblock", "rb"); // 2982
 	FILE* f = fopen("..\\..\\..\\Data\\gdb.exe", "rb"); // 2982
 	//FILE* f = fopen("test\\blockdump", "rb");
 	//FILE* f = fopen("test\\cine", "rb"); // 27081, 25716K!!!
+	//FILE* f = fopen("..\\..\\..\\Data\\cine", "rb"); // 2982
 	//FILE* f = fopen("test\\bunny.v3c1", "rb");
 	//FILE* f = fopen("test\\mpi.wrl", "rb");
 	//FILE* f = fopen("test\\NotTheMusic.mp4", "rb");
@@ -36,6 +38,14 @@ int main()
 	char* inputBuffer = new char[size];
 	fread(inputBuffer, size, 1, f);
 	fclose(f);
+
+	/*
+	inputBuffer[0] = 1;
+	inputBuffer[1] = 2;
+	for (int i = 2; i < 65536; ++i) {
+		inputBuffer[i] = 0;
+	}
+	*/
 
 	//size = 47;
 
@@ -118,8 +128,9 @@ int main()
 	{
 		if (inputBuffer[i] != decodedBuffer[i])
 		{
+			//cout << i << endl;
 			ok = false;
-			break;
+			//break;
 		}
 	}
 

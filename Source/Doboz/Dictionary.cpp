@@ -161,7 +161,7 @@ int Dictionary::findMatches(Match* matchCandidates)
 		// Check whether this match is the longest so far
 		int matchOffset = position - matchPosition;
 
-		if (matchLength > longestMatchLength && matchLength >= MIN_MATCH_LENGTH && matchOffset >= MIN_MATCH_OFFSET)
+		if (matchLength > longestMatchLength && matchLength >= MIN_MATCH_LENGTH)
 		{
 			longestMatchLength = matchLength;
 

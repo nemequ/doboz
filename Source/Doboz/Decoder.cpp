@@ -147,6 +147,27 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 			
 			unsigned int i = 0;
 
+			if (match.offset < WORD_SIZE)
+			{
+				// The match offset is less than the word size
+				// In order to correctly handle the overlap, we have to copy the first three bytes one by one
+				do
+				{
+					assert(matchString >= outputBuffer);
+					assert(matchString + i + WORD_SIZE <= outputEnd);
+					assert(outputIterator + i + WORD_SIZE <= outputEnd);
+
+					fastWrite(outputIterator + i, fastRead(matchString + i, 1), 1);
+					++i;
+				}
+				while (i < 3);
+
+				// With this trick, we increase the distance between the source and destination pointers
+				matchString -= 2 + (match.offset & 1);
+			}
+
+			assert(outputIterator - matchString >= WORD_SIZE);
+
 			do
 			{
 				assert(matchString >= outputBuffer);
@@ -154,7 +175,7 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 				assert(outputIterator + i + WORD_SIZE <= outputEnd);
 
 				fastWrite(outputIterator + i, fastRead(matchString + i, WORD_SIZE), WORD_SIZE);
-				i += MIN_MATCH_OFFSET;
+				i += WORD_SIZE;
 			}
 			while (i < match.length);
 			

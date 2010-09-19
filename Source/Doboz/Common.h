@@ -39,13 +39,11 @@ const int WORD_SIZE                 = 4;							// unsigned int (4 bytes)
 
 const int MIN_MATCH_LENGTH          = 3;
 const int MAX_MATCH_LENGTH          = 255 + MIN_MATCH_LENGTH;
-const int MIN_MATCH_OFFSET          = WORD_SIZE;					// 4, improves match copying speed
 const int MAX_MATCH_CANDIDATE_COUNT = 128;
 const int DICTIONARY_SIZE           = 1 << 21;						// 2 MB, must be a power of 2!
 
-const int TAIL_LENGTH               = WORD_SIZE;					// prevents fast write operations from writing beyond the end of the buffer
+const int TAIL_LENGTH               = 2 * WORD_SIZE;				// prevents fast write operations from writing beyond the end of the buffer during decoding
 const int DUMMY_SIZE                = WORD_SIZE;					// safety trailing bytes which decrease the number of necessary buffer checks
-const int MAX_HEADER_SIZE           = 1 + 8 + 8;
 
 
 // Reads up to 4 bytes and returns them in a word
@@ -54,7 +52,23 @@ inline unsigned int fastRead(const void* source, size_t size)
 {
 	assert(size <= WORD_SIZE);
 
-	return *reinterpret_cast<const unsigned int*>(source);
+	switch (size)
+	{
+	case 4:
+		return *reinterpret_cast<const unsigned int*>(source);
+
+	case 3:
+		return *reinterpret_cast<const unsigned int*>(source);
+
+	case 2:
+		return *reinterpret_cast<const unsigned short*>(source);
+
+	case 1:
+		return *reinterpret_cast<const unsigned char*>(source);
+
+	default:
+		return 0; // dummy
+	}
 }
 
 // Writes up to 4 bytes specified in a word
