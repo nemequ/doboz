@@ -3,7 +3,7 @@
 #include <cassert>
 #include <climits>
 
-namespace Doboz {
+namespace doboz {
 
 const int VERSION = 0; // encoding format
 
@@ -15,11 +15,11 @@ enum Result
 	RESULT_ERROR_UNSUPPORTED_VERSION,
 };
 
-} // namespace Doboz
+} // namespace doboz
 
 
-namespace Doboz {
-namespace Detail {
+namespace doboz {
+namespace detail {
 
 struct Match
 {
@@ -97,5 +97,5 @@ inline void fastWrite(void* destination, unsigned int word, size_t size)
 	}
 }
 
-} // namespace Detail
-} // namespace Doboz
+} // namespace detail
+} // namespace doboz

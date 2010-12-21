@@ -1,12 +1,9 @@
+#include <cassert>
 #include <algorithm>
-#include <stdexcept>
 #include "Dictionary.h"
 
-using namespace std;
-
-
-namespace Doboz {
-namespace Detail {
+namespace doboz {
+namespace detail {
 
 Dictionary::Dictionary()
 {
@@ -19,13 +16,13 @@ Dictionary::Dictionary()
 
 Dictionary::~Dictionary()
 {
-	cleanup();
+	destroy();
 }
 
-void Dictionary::initialize()
+void Dictionary::init()
 {
 	// Release the previously allocated resources
-	cleanup();
+	destroy();
 
 	// Create the hash table
 	hashTable_ = new int[HASH_TABLE_SIZE];
@@ -35,7 +32,7 @@ void Dictionary::initialize()
 	children_ = new int[CHILD_COUNT];
 }
 
-void Dictionary::cleanup()
+void Dictionary::destroy()
 {
 	delete[] hashTable_;
 	hashTable_ = 0;
@@ -53,9 +50,13 @@ void Dictionary::setBuffer(const unsigned char* buffer, size_t bufferLength)
 
 	// Compute the matchable buffer length
 	if (bufferLength_ > TAIL_LENGTH + MIN_MATCH_LENGTH)
+	{
 		matchableBufferLength_ = bufferLength_ - (TAIL_LENGTH + MIN_MATCH_LENGTH);
+	}
 	else
+	{
 		matchableBufferLength_ = 0;
+	}
 
 	// Since we always store 32-bit positions in the dictionary, we need relative positions in order to support buffers larger then 2 GB
 	// This can be possible, because the difference between any two positions stored in the dictionary never exceeds the size of the dictionary
@@ -65,11 +66,15 @@ void Dictionary::setBuffer(const unsigned char* buffer, size_t bufferLength)
 	
 	// Initialize, if necessary
 	if (hashTable_ == 0)
-		initialize();
+	{
+		init();
+	}
 
 	// Clear the hash table
 	for (int i = 0; i < HASH_TABLE_SIZE; ++i)
+	{
 		hashTable_[i] = INVALID_POSITION;
+	}
 }
 
 // Finds match candidates at the current buffer position and slides the matching window to the next character
@@ -78,8 +83,7 @@ void Dictionary::setBuffer(const unsigned char* buffer, size_t bufferLength)
 // The return value is the number of match candidates in the array
 int Dictionary::findMatches(Match* matchCandidates)
 {
-	if (hashTable_ == 0)
-		throw logic_error("No buffer is set");
+	assert(hashTable_ != 0 && "No buffer is set.");
 
 	// Check whether we can find matches at this position
 	if (absolutePosition_ >= matchableBufferLength_)
@@ -91,7 +95,7 @@ int Dictionary::findMatches(Match* matchCandidates)
 	}
 
 	// Compute the maximum match length
-	int maxMatchLength = static_cast<int>(min(bufferLength_ - TAIL_LENGTH - absolutePosition_, static_cast<size_t>(MAX_MATCH_LENGTH)));
+	int maxMatchLength = static_cast<int>(std::min(bufferLength_ - TAIL_LENGTH - absolutePosition_, static_cast<size_t>(MAX_MATCH_LENGTH)));
 
 	// Compute the position relative to the beginning of bufferBase_
 	// All other positions (including the ones stored in the hash table and the binary trees) are relative too
@@ -152,11 +156,13 @@ int Dictionary::findMatches(Match* matchCandidates)
 		int cyclicMatchPosition = matchPosition % DICTIONARY_SIZE;
 
 		// Use the match lengths of the low and high bounds to determine the number of characters that surely match
-		int matchLength = min(lowMatchLength, highMatchLength);
+		int matchLength = std::min(lowMatchLength, highMatchLength);
 
 		// Determine the match length
 		while (matchLength < maxMatchLength && bufferBase_[position + matchLength] == bufferBase_[matchPosition + matchLength])
+		{
 			++matchLength;
+		}
 
 		// Check whether this match is the longest so far
 		int matchOffset = position - matchPosition;
@@ -233,11 +239,15 @@ int Dictionary::computeRelativePosition()
 
 		// Rebase the hash entries
 		for (int i = 0; i < HASH_TABLE_SIZE; ++i)
+		{
 			hashTable_[i] = (hashTable_[i] >= rebaseDelta) ? (hashTable_[i] - rebaseDelta) : INVALID_POSITION;
+		}
 
 		// Rebase the binary tree nodes
 		for (int i = 0; i < CHILD_COUNT; ++i)
+		{
 			children_[i] = (children_[i] >= rebaseDelta) ? (children_[i] - rebaseDelta) : INVALID_POSITION;
+		}
 	}
 	
 	return position;
@@ -262,5 +272,5 @@ unsigned int Dictionary::hash(const unsigned char* data)
 	return result;
 }
 
-} // namespace Detail
-} // namespace Doboz
+} // namespace detail
+} // namespace doboz

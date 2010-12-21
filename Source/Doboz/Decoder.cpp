@@ -2,9 +2,9 @@
 
 #include "Decoder.h"
 
-namespace Doboz {
+namespace doboz {
 
-using namespace Detail;
+using namespace detail;
 
 Result Decoder::decode(const void* source, size_t sourceSize, void* destination, size_t destinationSize)
 {
@@ -20,16 +20,22 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 	Result decodeHeaderResult = decodeHeader(header, source, sourceSize, headerSize);
 
 	if (decodeHeaderResult != RESULT_SUCCESS)
+	{
 		return decodeHeaderResult;
+	}
 
 	inputIterator += headerSize;
 
 	if (header.version != VERSION)
+	{
 		return RESULT_ERROR_UNSUPPORTED_VERSION;
+	}
 
 	// Check whether the supplied buffers are large enough
 	if (sourceSize < header.compressedSize || destinationSize < header.uncompressedSize)
+	{
 		return RESULT_ERROR_BUFFER_TOO_SMALL;
+	}
 
 	size_t uncompressedSize = static_cast<size_t>(header.uncompressedSize);
 
@@ -56,7 +62,9 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 		// Check whether there is enough data left in the input buffer
 		// In order to decode the next literal/match, we have to read up to 8 bytes (2 words)
 		if (inputIterator + 2 * WORD_SIZE > inputEnd)
+		{
 			return RESULT_ERROR_CORRUPTED_DATA;
+		}
 
 		// Check whether we must read a control word
 		if (controlWord == 1)
@@ -102,7 +110,9 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 					// Check whether there is enough data left in the input buffer
 					// In order to decode the next literal, we have to read up to 5 bytes
 					if (inputIterator + WORD_SIZE + 1 > inputEnd)
+					{
 						return RESULT_ERROR_CORRUPTED_DATA;
+					}
 
 					// Check whether we must read a control word
 					if (controlWord == 1)
@@ -143,7 +153,9 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 
 			// Check whether the match is out of range
 			if (matchString < outputBuffer || outputIterator + match.length > outputTail)
+			{
 				return RESULT_ERROR_CORRUPTED_DATA;
+			}
 			
 			unsigned int i = 0;
 
@@ -195,7 +207,9 @@ Result Decoder::getCompressionInfo(const void* source, size_t sourceSize, Compre
 	Result decodeHeaderResult = decodeHeader(header, source, sourceSize, headerSize);
 
 	if (decodeHeaderResult != RESULT_SUCCESS)
+	{
 		return decodeHeaderResult;
+	}
 
 	// Return the requested info
 	compressionInfo.uncompressedSize = header.uncompressedSize;
@@ -250,7 +264,9 @@ Result Decoder::decodeHeader(Header& header, const void* source, size_t sourceSi
 
 	// Decode the attribute bytes
 	if (sourceSize < 1)
+	{
 		return RESULT_ERROR_BUFFER_TOO_SMALL;
+	}
 
 	unsigned int attributes = *inputIterator++;
 
@@ -261,7 +277,9 @@ Result Decoder::decodeHeader(Header& header, const void* source, size_t sourceSi
 	headerSize = 1 + 2 * sizeCodedSize;
 
 	if (sourceSize < headerSize)
+	{
 		return RESULT_ERROR_BUFFER_TOO_SMALL;
+	}
 
 	header.isStored = (attributes & 128) != 0;
 

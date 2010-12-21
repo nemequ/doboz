@@ -4,19 +4,23 @@
 
 using namespace std;
 
-namespace Doboz {
+namespace doboz {
 
-using namespace Detail;
+using namespace detail;
 
 Result Encoder::encode(const void* source, size_t sourceSize, void* destination, size_t destinationSize, size_t& compressedSize)
 {
 	if (sourceSize == 0)
+	{
 		return RESULT_ERROR_BUFFER_TOO_SMALL;
+	}
 
 	size_t maxCompressedSize = getMaxCompressedSize(sourceSize);
 
 	if (destinationSize < maxCompressedSize)
+	{
 		return RESULT_ERROR_BUFFER_TOO_SMALL;
+	}
 
 	const unsigned char* inputBuffer = static_cast<const unsigned char*>(source);
 	unsigned char* outputBuffer = static_cast<unsigned char*>(destination);
@@ -101,7 +105,9 @@ Result Encoder::encode(const void* source, size_t sourceSize, void* destination,
 		// If we have a match, do not immediately use it, because we may miss an even better match (lazy evaluation)
 		// If encoding a literal and the next match has a higher compression ratio than encoding the current match, discard the current match
 		if (match.length > 0 && (1 + nextMatch.length) * getMatchCodedSize(match) > match.length * (1 + getMatchCodedSize(nextMatch)))
+		{
 			match.length = 0;
+		}
 		
 		// Check whether we must encode a literal or a match
 		if (match.length == 0)
@@ -124,7 +130,9 @@ Result Encoder::encode(const void* source, size_t sourceSize, void* destination,
 			
 			// Skip the matched characters
 			for (unsigned int i = 0; i < match.length - 2; ++i)
+			{
 				dictionary_.skip();
+			}
 
 			matchCandidateCount = dictionary_.findMatches(matchCandidates);
 			nextMatch = getBestMatch(matchCandidates, matchCandidateCount);
@@ -244,7 +252,9 @@ unsigned int Encoder::encodeMatch(const Match& match, void* destination)
 	}
 
 	if (destination != 0)
+	{
 		fastWrite(destination, word, size);
+	}
 
 	return size;
 }
@@ -257,13 +267,19 @@ unsigned int Encoder::getMatchCodedSize(const Match& match)
 unsigned int Encoder::getSizeCodedSize(size_t size)
 {
 	if (size <= UCHAR_MAX)
+	{
 		return 1;
+	}
 
 	if (size <= USHRT_MAX)
+	{
 		return 2;
+	}
 
 	if (size <= UINT_MAX)
+	{
 		return 4;
+	}
 	
 	return 8;
 }
@@ -286,7 +302,9 @@ void Encoder::encodeHeader(const Header& header, size_t maxCompressedSize, void*
 	attributes |= (sizeCodedSize - 1) << 3;
 
 	if (header.isStored)
+	{
 		attributes |= 128;
+	}
 
 	*outputIterator++ = attributes;
 
@@ -321,4 +339,4 @@ size_t Encoder::getMaxCompressedSize(size_t size)
 	return getHeaderSize(size) + size;
 }
 
-} // namespace Doboz
+} // namespace doboz

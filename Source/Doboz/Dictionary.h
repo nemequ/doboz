@@ -2,8 +2,8 @@
 
 #include "Common.h"
 
-namespace Doboz {
-namespace Detail {
+namespace doboz {
+namespace detail {
 
 class Dictionary
 {
@@ -38,12 +38,12 @@ private:
 	int* hashTable_;		// relative match positions to bufferBase_
 	int* children_;			// children of the binary tree nodes (relative match positions to bufferBase_)
 
-	void initialize();
-	void cleanup();
+	void init();
+	void destroy();
 
 	int computeRelativePosition();
 	unsigned int hash(const unsigned char* data);
 };
 
-} // namespace Detail
-} // namespace Doboz
+} // namespace detail
+} // namespace doboz

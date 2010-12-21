@@ -3,7 +3,7 @@
 #include "Common.h"
 #include "Dictionary.h"
 
-namespace Doboz {
+namespace doboz {
 
 class Encoder
 {
@@ -13,16 +13,16 @@ public:
 	Result encode(const void* source, size_t sourceSize, void* destination, size_t destinationSize, size_t& compressedSize);
 
 private:
-	Detail::Dictionary dictionary_;
+	detail::Dictionary dictionary_;
 
 	static unsigned int getSizeCodedSize(size_t size);
 	static unsigned int getHeaderSize(size_t maxCompressedSize);
 
 	Result encodeStored(const void* source, size_t sourceSize, void* destination, size_t& compressedSize);
-	Detail::Match getBestMatch(Detail::Match* matchCandidates, int matchCandidateCount);
-	unsigned int encodeMatch(const Detail::Match& match, void* destination);
-	unsigned int getMatchCodedSize(const Detail::Match& match);
-	void encodeHeader(const Detail::Header& header, size_t maxCompressedSize, void* destination);
+	detail::Match getBestMatch(detail::Match* matchCandidates, int matchCandidateCount);
+	unsigned int encodeMatch(const detail::Match& match, void* destination);
+	unsigned int getMatchCodedSize(const detail::Match& match);
+	void encodeHeader(const detail::Header& header, size_t maxCompressedSize, void* destination);
 };
 
-} // namespace Doboz
+} // namespace doboz

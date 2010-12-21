@@ -4,7 +4,7 @@
 #include "Timer.h"
 
 using namespace Afra;
-using namespace Doboz;
+using namespace doboz;
 using namespace std;
 
 int main(int argc, char* argv[])
