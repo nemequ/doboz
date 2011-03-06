@@ -2,10 +2,9 @@
 #include <algorithm>
 #include "Encoder.h"
 
-using namespace std;
-
 namespace doboz {
 
+using namespace std;
 using namespace detail;
 
 Result Encoder::encode(const void* source, size_t sourceSize, void* destination, size_t destinationSize, size_t& compressedSize)
