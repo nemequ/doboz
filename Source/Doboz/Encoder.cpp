@@ -4,7 +4,6 @@
 
 namespace doboz {
 
-using namespace std;
 using namespace detail;
 
 Result Encoder::encode(const void* source, size_t sourceSize, void* destination, size_t destinationSize, size_t& compressedSize)
@@ -21,17 +20,17 @@ Result Encoder::encode(const void* source, size_t sourceSize, void* destination,
 		return RESULT_ERROR_BUFFER_TOO_SMALL;
 	}
 
-	const unsigned char* inputBuffer = static_cast<const unsigned char*>(source);
-	unsigned char* outputBuffer = static_cast<unsigned char*>(destination);
+	const uint8_t* inputBuffer = static_cast<const uint8_t*>(source);
+	uint8_t* outputBuffer = static_cast<uint8_t*>(destination);
 
-	unsigned char* outputEnd = outputBuffer + destinationSize;
+	uint8_t* outputEnd = outputBuffer + destinationSize;
 
 	// Compute the maximum output end pointer
 	// We use this to determine whether we should store the data instead of compressing it
-	unsigned char* maxOutputEnd = outputBuffer + maxCompressedSize;
+	uint8_t* maxOutputEnd = outputBuffer + maxCompressedSize;
 
 	// Allocate the header
-	unsigned char* outputIterator = outputBuffer;
+	uint8_t* outputIterator = outputBuffer;
 	outputIterator += getHeaderSize(maxCompressedSize);
 
 	// Initialize the dictionary
@@ -41,14 +40,14 @@ Result Encoder::encode(const void* source, size_t sourceSize, void* destination,
 	// The highest bit of a control word is a guard bit, which marks the end of the bit list
 	// The guard bit simplifies and speeds up the decoding process, and it 
 	const int controlWordBitCount = WORD_SIZE * 8 - 1;
-	const unsigned int controlWordGuardBit = 1 << controlWordBitCount;
-	unsigned int controlWord = controlWordGuardBit;
+	const uint32_t controlWordGuardBit = 1 << controlWordBitCount;
+	uint32_t controlWord = controlWordGuardBit;
 	int controlWordBit = 0;
 
 	// Since we do not know the contents of the control words in advance, we allocate space for them and subsequently fill them with data as soon as we can
 	// This is necessary because the decoder must encounter a control word *before* the literals and matches it refers to
 	// We begin the compressed data with a control word
-	unsigned char* controlWordPointer = outputIterator;
+	uint8_t* controlWordPointer = outputIterator;
 	outputIterator += WORD_SIZE;
 
 	// The match located at the current inputIterator position
@@ -128,7 +127,7 @@ Result Encoder::encode(const void* source, size_t sourceSize, void* destination,
 			outputIterator += encodeMatch(match, outputIterator);
 			
 			// Skip the matched characters
-			for (unsigned int i = 0; i < match.length - 2; ++i)
+			for (uint32_t i = 0; i < match.length - 2; ++i)
 			{
 				dictionary_.skip();
 			}
@@ -163,18 +162,18 @@ Result Encoder::encode(const void* source, size_t sourceSize, void* destination,
 	encodeHeader(header, maxCompressedSize, outputBuffer);
 
 	// Return the compressed size
-	return RESULT_SUCCESS;
+	return RESULT_OK;
 }
 
 // Store the source
 Result Encoder::encodeStored(const void* source, size_t sourceSize, void* destination, size_t& compressedSize)
 {
-	unsigned char* outputBuffer = static_cast<unsigned char*>(destination);
-	unsigned char* outputIterator = outputBuffer;
+	uint8_t* outputBuffer = static_cast<uint8_t*>(destination);
+	uint8_t* outputIterator = outputBuffer;
 
 	// Encode the header
 	size_t maxCompressedSize = getMaxCompressedSize(sourceSize);
-	unsigned int headerSize = getHeaderSize(maxCompressedSize);
+	int headerSize = getHeaderSize(maxCompressedSize);
 
 	compressedSize = headerSize + sourceSize;
 
@@ -191,7 +190,7 @@ Result Encoder::encodeStored(const void* source, size_t sourceSize, void* destin
 	// Store the data
 	memcpy(outputIterator, source, sourceSize);
 
-	return RESULT_SUCCESS;
+	return RESULT_OK;
 }
 
 // Selects the best match from a list of match candidates provided by the match finder
@@ -213,16 +212,16 @@ Match Encoder::getBestMatch(Match* matchCandidates, int matchCandidateCount)
 	return bestMatch;
 }
 
-unsigned int Encoder::encodeMatch(const Match& match, void* destination)
+uint32_t Encoder::encodeMatch(const Match& match, void* destination)
 {
 	assert(match.length <= MAX_MATCH_LENGTH);
 	assert(match.length == 0 || match.offset < DICTIONARY_SIZE);
 
-	unsigned int word;
-	unsigned int size;
+	uint32_t word;
+	uint32_t size;
 
-	unsigned int lengthCode = match.length - MIN_MATCH_LENGTH;
-	unsigned int offsetCode = match.offset;
+	uint32_t lengthCode = match.length - MIN_MATCH_LENGTH;
+	uint32_t offsetCode = match.offset;
 
 	if (lengthCode == 0 && offsetCode < 64)
 	{
@@ -258,12 +257,12 @@ unsigned int Encoder::encodeMatch(const Match& match, void* destination)
 	return size;
 }
 
-unsigned int Encoder::getMatchCodedSize(const Match& match)
+uint32_t Encoder::getMatchCodedSize(const Match& match)
 {
 	return encodeMatch(match, 0);
 }
 
-unsigned int Encoder::getSizeCodedSize(size_t size)
+int Encoder::getSizeCodedSize(size_t size)
 {
 	if (size <= UCHAR_MAX)
 	{
@@ -283,7 +282,7 @@ unsigned int Encoder::getSizeCodedSize(size_t size)
 	return 8;
 }
 
-unsigned int Encoder::getHeaderSize(size_t maxCompressedSize)
+int Encoder::getHeaderSize(size_t maxCompressedSize)
 {
 	return 1 + 2 * getSizeCodedSize(maxCompressedSize);
 }
@@ -292,12 +291,12 @@ void Encoder::encodeHeader(const Header& header, size_t maxCompressedSize, void*
 {
 	assert(header.version < 8);
 
-	unsigned char* outputIterator = static_cast<unsigned char*>(destination);
+	uint8_t* outputIterator = static_cast<uint8_t*>(destination);
 
 	// Encode the attribute byte
-	unsigned int attributes = header.version;
+	uint32_t attributes = header.version;
 
-	unsigned int sizeCodedSize = getSizeCodedSize(maxCompressedSize);
+	uint32_t sizeCodedSize = getSizeCodedSize(maxCompressedSize);
 	attributes |= (sizeCodedSize - 1) << 3;
 
 	if (header.isStored)
@@ -305,29 +304,29 @@ void Encoder::encodeHeader(const Header& header, size_t maxCompressedSize, void*
 		attributes |= 128;
 	}
 
-	*outputIterator++ = attributes;
+	*outputIterator++ = static_cast<uint8_t>(attributes);
 
 	// Encode the uncompressed and compressed sizes
 	switch (sizeCodedSize)
 	{
-	case 4:
-		*reinterpret_cast<unsigned int*>(outputIterator)                 = static_cast<unsigned int>(header.uncompressedSize);
-		*reinterpret_cast<unsigned int*>(outputIterator + sizeCodedSize) = static_cast<unsigned int>(header.compressedSize);
+	case 1:
+		*reinterpret_cast<uint8_t*>(outputIterator) = static_cast<uint8_t>(header.uncompressedSize);
+		*reinterpret_cast<uint8_t*>(outputIterator + sizeCodedSize) = static_cast<uint8_t>(header.compressedSize);
 		break;
 
 	case 2:
-		*reinterpret_cast<unsigned short*>(outputIterator)                 = static_cast<unsigned short>(header.uncompressedSize);
-		*reinterpret_cast<unsigned short*>(outputIterator + sizeCodedSize) = static_cast<unsigned short>(header.compressedSize);
+		*reinterpret_cast<uint16_t*>(outputIterator) = static_cast<uint16_t>(header.uncompressedSize);
+		*reinterpret_cast<uint16_t*>(outputIterator + sizeCodedSize) = static_cast<uint16_t>(header.compressedSize);
 		break;
 
-	case 1:
-		*reinterpret_cast<unsigned char*>(outputIterator)                 = static_cast<unsigned char>(header.uncompressedSize);
-		*reinterpret_cast<unsigned char*>(outputIterator + sizeCodedSize) = static_cast<unsigned char>(header.compressedSize);
+	case 4:
+		*reinterpret_cast<uint32_t*>(outputIterator) = static_cast<uint32_t>(header.uncompressedSize);
+		*reinterpret_cast<uint32_t*>(outputIterator + sizeCodedSize) = static_cast<uint32_t>(header.compressedSize);
 		break;
 
 	case 8:
-		*reinterpret_cast<unsigned long long*>(outputIterator)                 = header.uncompressedSize;;
-		*reinterpret_cast<unsigned long long*>(outputIterator + sizeCodedSize) = header.compressedSize;
+		*reinterpret_cast<uint64_t*>(outputIterator) = header.uncompressedSize;;
+		*reinterpret_cast<uint64_t*>(outputIterator + sizeCodedSize) = header.compressedSize;
 		break;
 	}
 }

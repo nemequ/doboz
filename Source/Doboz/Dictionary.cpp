@@ -25,11 +25,11 @@ void Dictionary::init()
 	destroy();
 
 	// Create the hash table
-	hashTable_ = new int[HASH_TABLE_SIZE];
+	hashTable_ = new int32_t[HASH_TABLE_SIZE];
 
 	// Create the tree nodes
 	// The number of nodes is equal to the size of the dictionary, and every node has two children
-	children_ = new int[CHILD_COUNT];
+	children_ = new int32_t[CHILD_COUNT];
 }
 
 void Dictionary::destroy()
@@ -41,7 +41,7 @@ void Dictionary::destroy()
 	children_ = 0;
 }
 
-void Dictionary::setBuffer(const unsigned char* buffer, size_t bufferLength)
+void Dictionary::setBuffer(const uint8_t* buffer, size_t bufferLength)
 {
 	// Set the buffer
 	buffer_ = buffer;
@@ -106,7 +106,7 @@ int Dictionary::findMatches(Match* matchCandidates)
 	int minMatchPosition = (position < DICTIONARY_SIZE) ? 0 : (position - DICTIONARY_SIZE + 1);
 
 	// Compute the hash value for the current string
-	int hashValue = hash(bufferBase_ + position) % HASH_TABLE_SIZE;
+	uint32_t hashValue = hash(bufferBase_ + position) % HASH_TABLE_SIZE;
 
 	// Get the position of the first match from the hash table
 	int matchPosition = hashTable_[hashValue];
@@ -118,7 +118,7 @@ int Dictionary::findMatches(Match* matchCandidates)
 	int cyclicInputPosition = position % DICTIONARY_SIZE;
 
 	// Initialize the references to the leaves of the new root's left and right subtrees
-	int leftSubtreeLeaf  = cyclicInputPosition * 2;
+	int leftSubtreeLeaf = cyclicInputPosition * 2;
 	int rightSubtreeLeaf = cyclicInputPosition * 2 + 1;
 
 	// Initialize the match lenghts of the lower and upper bounds of the current string (lowMatch < match < highMatch)
@@ -145,7 +145,7 @@ int Dictionary::findMatches(Match* matchCandidates)
 		if (matchPosition < minMatchPosition || matchCount == MAX_MATCH_CANDIDATE_COUNT)
 		{
 			// We have checked all valid matches, so finish the new tree and exit
-			children_[leftSubtreeLeaf]  = INVALID_POSITION;
+			children_[leftSubtreeLeaf] = INVALID_POSITION;
 			children_[rightSubtreeLeaf] = INVALID_POSITION;
 			break;
 		}
@@ -174,8 +174,8 @@ int Dictionary::findMatches(Match* matchCandidates)
 			// Add the current best match to the list of good match candidates
 			if (matchCandidates != 0)
 			{
-				matchCandidates[matchCandidateCount].length = matchLength;
-				matchCandidates[matchCandidateCount].offset = matchOffset;
+				matchCandidates[matchCandidateCount].length = static_cast<uint32_t>(matchLength);
+				matchCandidates[matchCandidateCount].offset = static_cast<uint32_t>(matchOffset);
 				++matchCandidateCount;
 			}
 
@@ -183,7 +183,7 @@ int Dictionary::findMatches(Match* matchCandidates)
 			if (matchLength == maxMatchLength)
 			{
 				// Since the current string is also the root of the tree, delete the current node
-				children_[leftSubtreeLeaf]  = children_[cyclicMatchPosition * 2];
+				children_[leftSubtreeLeaf] = children_[cyclicMatchPosition * 2];
 				children_[rightSubtreeLeaf] = children_[cyclicMatchPosition * 2 + 1];
 				break;
 			}
@@ -259,11 +259,11 @@ void Dictionary::skip()
 	findMatches(0);
 }
 
-unsigned int Dictionary::hash(const unsigned char* data)
+uint32_t Dictionary::hash(const uint8_t* data)
 {
 	// FNV-1a hash
-	const unsigned int prime = 16777619;
-	unsigned int result = 2166136261;
+	const uint32_t prime = 16777619;
+	uint32_t result = 2166136261;
 
 	result = (result ^ data[0]) * prime;
 	result = (result ^ data[1]) * prime;

@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 		result = encoder.encode(inputBuffer, inputSize, outputBuffer, outputBufferSize, outputSize);
 		time = timer.query();
 
-		if (result != RESULT_SUCCESS)
+		if (result != RESULT_OK)
 		{
 			cout << " ERROR!" << endl;
 			delete[] inputBuffer;
@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
 
 		Decoder decoder;
 		CompressionInfo info;
-		if (decoder.getCompressionInfo(inputBuffer, inputSize, info) != RESULT_SUCCESS)
+		if (decoder.getCompressionInfo(inputBuffer, inputSize, info) != RESULT_OK)
 		{
 			cout << " ERROR!" << endl;
 			delete[] inputBuffer;
@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
 					time = currentTime;
 			}
 
-			if (result != RESULT_SUCCESS)
+			if (result != RESULT_OK)
 			{
 				cout << " ERROR!" << endl;
 				delete[] inputBuffer;
@@ -128,7 +128,7 @@ int main(int argc, char* argv[])
 			result = decoder.decode(inputBuffer, inputSize, outputBuffer, info.uncompressedSize);
 			time = timer.query();
 
-			if (result != RESULT_SUCCESS)
+			if (result != RESULT_OK)
 			{
 				cout << " ERROR!" << endl;
 				delete[] inputBuffer;

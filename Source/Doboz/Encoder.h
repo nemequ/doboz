@@ -15,13 +15,13 @@ public:
 private:
 	detail::Dictionary dictionary_;
 
-	static unsigned int getSizeCodedSize(size_t size);
-	static unsigned int getHeaderSize(size_t maxCompressedSize);
+	static int getSizeCodedSize(size_t size);
+	static int getHeaderSize(size_t maxCompressedSize);
 
 	Result encodeStored(const void* source, size_t sourceSize, void* destination, size_t& compressedSize);
 	detail::Match getBestMatch(detail::Match* matchCandidates, int matchCandidateCount);
-	unsigned int encodeMatch(const detail::Match& match, void* destination);
-	unsigned int getMatchCodedSize(const detail::Match& match);
+	uint32_t encodeMatch(const detail::Match& match, void* destination);
+	uint32_t getMatchCodedSize(const detail::Match& match);
 	void encodeHeader(const detail::Header& header, size_t maxCompressedSize, void* destination);
 };
 

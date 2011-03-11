@@ -61,7 +61,7 @@ int main()
 	Timer timer;
 
 	size_t dbzSize;
-	if (encoder.encode(inputBuffer, size, dbzBuffer, dbzBufferSize, dbzSize) != RESULT_SUCCESS)
+	if (encoder.encode(inputBuffer, size, dbzBuffer, dbzBufferSize, dbzSize) != RESULT_OK)
 		cout << "ERROR" << endl;
 
 	cout << timer.query() << " sec" << endl;
@@ -90,7 +90,7 @@ int main()
 
 	Decoder decoder;
 	CompressionInfo cinfo;
-	if (decoder.getCompressionInfo(dbzBuffer, dbzBufferSize, cinfo) != RESULT_SUCCESS)
+	if (decoder.getCompressionInfo(dbzBuffer, dbzBufferSize, cinfo) != RESULT_OK)
 	{
 		cout << "ERROR" << endl;
 		return 1;
@@ -107,7 +107,7 @@ int main()
 	for (int i = 0; i < decodeCount; ++i)
 	{
 		timer.reset();
-		if (decoder.decode(dbzBuffer, dbzBufferSize, decodedBuffer, size) != RESULT_SUCCESS)
+		if (decoder.decode(dbzBuffer, dbzBufferSize, decodedBuffer, size) != RESULT_OK)
 		{
 			cout << "ERROR" << endl;
 			return 1;

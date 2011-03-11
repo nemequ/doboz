@@ -1,5 +1,4 @@
 #include <cstring>
-
 #include "Decoder.h"
 
 namespace doboz {
@@ -8,18 +7,18 @@ using namespace detail;
 
 Result Decoder::decode(const void* source, size_t sourceSize, void* destination, size_t destinationSize)
 {
-	const unsigned char* inputBuffer = static_cast<const unsigned char*>(source);
-	const unsigned char* inputIterator = inputBuffer;
+	const uint8_t* inputBuffer = static_cast<const uint8_t*>(source);
+	const uint8_t* inputIterator = inputBuffer;
 
-	unsigned char* outputBuffer = static_cast<unsigned char*>(destination);
-	unsigned char* outputIterator = outputBuffer;
+	uint8_t* outputBuffer = static_cast<uint8_t*>(destination);
+	uint8_t* outputIterator = outputBuffer;
 
 	// Decode the header
 	Header header;
-	unsigned int headerSize;
+	int headerSize;
 	Result decodeHeaderResult = decodeHeader(header, source, sourceSize, headerSize);
 
-	if (decodeHeaderResult != RESULT_SUCCESS)
+	if (decodeHeaderResult != RESULT_OK)
 	{
 		return decodeHeaderResult;
 	}
@@ -43,18 +42,18 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 	if (header.isStored)
 	{
 		memcpy(outputBuffer, inputIterator, uncompressedSize);
-		return RESULT_SUCCESS;
+		return RESULT_OK;
 	}
 
-	const unsigned char* inputEnd = inputBuffer + uncompressedSize;
-	unsigned char* outputEnd = outputBuffer + uncompressedSize;
+	const uint8_t* inputEnd = inputBuffer + uncompressedSize;
+	uint8_t* outputEnd = outputBuffer + uncompressedSize;
 
 	// Compute pointer to the first byte of the output 'tail'
 	// Fast write operations can be used only before the tail, because those may write beyond the end of the output buffer
-	unsigned char* outputTail = (uncompressedSize > TAIL_LENGTH) ? (outputEnd - TAIL_LENGTH) : outputBuffer;
+	uint8_t* outputTail = (uncompressedSize > TAIL_LENGTH) ? (outputEnd - TAIL_LENGTH) : outputBuffer;
 
 	// Initialize the control word to 'empty'
-	unsigned int controlWord = 1;
+	uint32_t controlWord = 1;
 
 	// Decoding loop
 	for (; ;)
@@ -90,9 +89,8 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 				fastWrite(outputIterator, fastRead(inputIterator, 4), 4);
 
 				// Get the run length using a lookup table
-				static const unsigned int literalRunLengthTable[16] = {4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0};
-
-				unsigned int runLength = literalRunLengthTable[controlWord & 0xf];
+				static const int8_t literalRunLengthTable[16] = {4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0};
+				int runLength = literalRunLengthTable[controlWord & 0xf];
 
 				// Advance the inputBuffer and outputBuffer pointers with the run length
 				inputIterator  += runLength;
@@ -133,7 +131,7 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 				}
 
 				// Done
-				return RESULT_SUCCESS;
+				return RESULT_OK;
 			}
 		}
 		else
@@ -149,7 +147,7 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 			// In order to achieve high performance, we copy characters in groups of machine words
 			// We have to correctly handle overlaps, so after copying a word, we can advance the pointers only by the minimum possible match offset
 			// If the minimum match offset is equal to the word size, the copying has maximum efficiency
-			unsigned char* matchString = outputIterator - match.offset;
+			uint8_t* matchString = outputIterator - match.offset;
 
 			// Check whether the match is out of range
 			if (matchString < outputBuffer || outputIterator + match.length > outputTail)
@@ -157,7 +155,7 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 				return RESULT_ERROR_CORRUPTED_DATA;
 			}
 			
-			unsigned int i = 0;
+			uint32_t i = 0;
 
 			if (match.offset < WORD_SIZE)
 			{
@@ -203,10 +201,10 @@ Result Decoder::getCompressionInfo(const void* source, size_t sourceSize, Compre
 {
 	// Decode the header
 	Header header;
-	unsigned int headerSize;
+	int headerSize;
 	Result decodeHeaderResult = decodeHeader(header, source, sourceSize, headerSize);
 
-	if (decodeHeaderResult != RESULT_SUCCESS)
+	if (decodeHeaderResult != RESULT_OK)
 	{
 		return decodeHeaderResult;
 	}
@@ -216,20 +214,20 @@ Result Decoder::getCompressionInfo(const void* source, size_t sourceSize, Compre
 	compressionInfo.compressedSize = header.compressedSize;
 	compressionInfo.version = header.version;
 
-	return RESULT_SUCCESS;
+	return RESULT_OK;
 }
 
 // Decodes a match and returns its size in bytes
-unsigned int Decoder::decodeMatch(Match& match, const void* source)
+DOBOZ_FORCEINLINE uint32_t Decoder::decodeMatch(Match& match, const void* source)
 {
 	// Use a decoding lookup table in order to avoid expensive branches
 	static const struct
 	{
-		unsigned int  mask;			// the mask for the entire encoded match
-		unsigned char offsetShift;
-		unsigned char lengthMask;
-		unsigned char lengthShift;
-		unsigned char size;			// the size of the encoded match in bytes
+		uint32_t mask; // the mask for the entire encoded match
+		uint8_t offsetShift;
+		uint8_t lengthMask;
+		uint8_t lengthShift;
+		uint8_t size; // the size of the encoded match in bytes
 	}
 	lut[] =
 	{
@@ -244,10 +242,10 @@ unsigned int Decoder::decodeMatch(Match& match, const void* source)
 	};
 
 	// Read the maximum number of bytes a match is coded in (the machine word size)
-	unsigned int word = fastRead(source, WORD_SIZE);
+	uint32_t word = fastRead(source, WORD_SIZE);
 
 	// Compute the decoding lookup table entry index: the lowest 3 bits of the encoded match
-	unsigned int i = word & 7;
+	uint32_t i = word & 7;
 
 	// Compute the match offset and length using the lookup table entry
 	match.offset = (word & lut[i].mask) >> lut[i].offsetShift;
@@ -258,9 +256,9 @@ unsigned int Decoder::decodeMatch(Match& match, const void* source)
 
 // Decodes a header and returns its size in bytes
 // If the header is not valid, the function returns 0
-Result Decoder::decodeHeader(Header& header, const void* source, size_t sourceSize, unsigned int& headerSize)
+Result Decoder::decodeHeader(Header& header, const void* source, size_t sourceSize, int& headerSize)
 {
-	const unsigned char* inputIterator = static_cast<const unsigned char*>(source);
+	const uint8_t* inputIterator = static_cast<const uint8_t*>(source);
 
 	// Decode the attribute bytes
 	if (sourceSize < 1)
@@ -268,10 +266,10 @@ Result Decoder::decodeHeader(Header& header, const void* source, size_t sourceSi
 		return RESULT_ERROR_BUFFER_TOO_SMALL;
 	}
 
-	unsigned int attributes = *inputIterator++;
+	uint32_t attributes = *inputIterator++;
 
 	header.version = attributes & 7;
-	unsigned int sizeCodedSize = ((attributes >> 3) & 7) + 1;
+	int sizeCodedSize = ((attributes >> 3) & 7) + 1;
 
 	// Compute the size of the header
 	headerSize = 1 + 2 * sizeCodedSize;
@@ -286,31 +284,31 @@ Result Decoder::decodeHeader(Header& header, const void* source, size_t sourceSi
 	// Decode the uncompressed and compressed sizes
 	switch (sizeCodedSize)
 	{
-	case 4:
-		header.uncompressedSize = *reinterpret_cast<const unsigned int*>(inputIterator);
-		header.compressedSize   = *reinterpret_cast<const unsigned int*>(inputIterator + sizeCodedSize);
+	case 1:
+		header.uncompressedSize = *reinterpret_cast<const uint8_t*>(inputIterator);
+		header.compressedSize = *reinterpret_cast<const uint8_t*>(inputIterator + sizeCodedSize);
 		break;
 
 	case 2:
-		header.uncompressedSize = *reinterpret_cast<const unsigned short*>(inputIterator);
-		header.compressedSize   = *reinterpret_cast<const unsigned short*>(inputIterator + sizeCodedSize);
+		header.uncompressedSize = *reinterpret_cast<const uint16_t*>(inputIterator);
+		header.compressedSize = *reinterpret_cast<const uint16_t*>(inputIterator + sizeCodedSize);
 		break;
 
-	case 1:
-		header.uncompressedSize = *reinterpret_cast<const unsigned char*>(inputIterator);
-		header.compressedSize   = *reinterpret_cast<const unsigned char*>(inputIterator + sizeCodedSize);
+	case 4:
+		header.uncompressedSize = *reinterpret_cast<const uint32_t*>(inputIterator);
+		header.compressedSize = *reinterpret_cast<const uint32_t*>(inputIterator + sizeCodedSize);
 		break;
 
 	case 8:
-		header.uncompressedSize = *reinterpret_cast<const unsigned long long*>(inputIterator);
-		header.compressedSize   = *reinterpret_cast<const unsigned long long*>(inputIterator + sizeCodedSize);
+		header.uncompressedSize = *reinterpret_cast<const uint64_t*>(inputIterator);
+		header.compressedSize = *reinterpret_cast<const uint64_t*>(inputIterator + sizeCodedSize);
 		break;
 
 	default:
 		return RESULT_ERROR_CORRUPTED_DATA;
 	}
 
-	return RESULT_SUCCESS;
+	return RESULT_OK;
 }
 
 }

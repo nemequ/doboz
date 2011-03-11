@@ -1,7 +1,16 @@
 #pragma once
 
-#include <cassert>
+#include <cstdint>
 #include <climits>
+#include <cassert>
+
+#if defined(_MSC_VER)
+#define DOBOZ_FORCEINLINE __forceinline
+#elif defined(__GNUC__)
+#define DOBOZ_FORCEINLINE inline __attribute__ ((always_inline))
+#else
+#define DOBOZ_FORCEINLINE inline
+#endif
 
 namespace doboz {
 
@@ -9,62 +18,60 @@ const int VERSION = 0; // encoding format
 
 enum Result
 {
-	RESULT_SUCCESS,
+	RESULT_OK,
 	RESULT_ERROR_BUFFER_TOO_SMALL,
 	RESULT_ERROR_CORRUPTED_DATA,
 	RESULT_ERROR_UNSUPPORTED_VERSION,
 };
 
-} // namespace doboz
 
-
-namespace doboz {
 namespace detail {
 
 struct Match
 {
-	unsigned int length;
-	unsigned int offset;
+	uint32_t length;
+	uint32_t offset;
 };
 
 struct Header
 {
-	unsigned long long uncompressedSize;
-	unsigned long long compressedSize;
-	int                version;
-	bool               isStored;
+	uint64_t uncompressedSize;
+	uint64_t compressedSize;
+	int version;
+	bool isStored;
 };
 
-const int WORD_SIZE                 = 4;							// unsigned int (4 bytes)
 
-const int MIN_MATCH_LENGTH          = 3;
-const int MAX_MATCH_LENGTH          = 255 + MIN_MATCH_LENGTH;
+const int WORD_SIZE = 4; // uint32_t
+
+const int MIN_MATCH_LENGTH = 3;
+const int MAX_MATCH_LENGTH = 255 + MIN_MATCH_LENGTH;
 const int MAX_MATCH_CANDIDATE_COUNT = 128;
-const int DICTIONARY_SIZE           = 1 << 21;						// 2 MB, must be a power of 2!
+const int DICTIONARY_SIZE = 1 << 21; // 2 MB, must be a power of 2!
 
-const int TAIL_LENGTH               = 2 * WORD_SIZE;				// prevents fast write operations from writing beyond the end of the buffer during decoding
-const int DUMMY_SIZE                = WORD_SIZE;					// safety trailing bytes which decrease the number of necessary buffer checks
+const int TAIL_LENGTH = 2 * WORD_SIZE; // prevents fast write operations from writing beyond the end of the buffer during decoding
+const int DUMMY_SIZE = WORD_SIZE; // safety trailing bytes which decrease the number of necessary buffer checks
 
 
 // Reads up to 4 bytes and returns them in a word
 // WARNING: May read more bytes than requested!
-inline unsigned int fastRead(const void* source, size_t size)
+DOBOZ_FORCEINLINE uint32_t fastRead(const void* source, size_t size)
 {
 	assert(size <= WORD_SIZE);
 
 	switch (size)
 	{
 	case 4:
-		return *reinterpret_cast<const unsigned int*>(source);
+		return *reinterpret_cast<const uint32_t*>(source);
 
 	case 3:
-		return *reinterpret_cast<const unsigned int*>(source);
+		return *reinterpret_cast<const uint32_t*>(source);
 
 	case 2:
-		return *reinterpret_cast<const unsigned short*>(source);
+		return *reinterpret_cast<const uint16_t*>(source);
 
 	case 1:
-		return *reinterpret_cast<const unsigned char*>(source);
+		return *reinterpret_cast<const uint8_t*>(source);
 
 	default:
 		return 0; // dummy
@@ -73,29 +80,30 @@ inline unsigned int fastRead(const void* source, size_t size)
 
 // Writes up to 4 bytes specified in a word
 // WARNING: May write more bytes than requested!
-inline void fastWrite(void* destination, unsigned int word, size_t size)
+DOBOZ_FORCEINLINE void fastWrite(void* destination, uint32_t word, size_t size)
 {
 	assert(size <= WORD_SIZE);
 
 	switch (size)
 	{
 	case 4:
-		*reinterpret_cast<unsigned int*>(destination) = word;
+		*reinterpret_cast<uint32_t*>(destination) = word;
 		break;
 
 	case 3:
-		*reinterpret_cast<unsigned int*>(destination) = word;
+		*reinterpret_cast<uint32_t*>(destination) = word;
 		break;
 
 	case 2:
-		*reinterpret_cast<unsigned short*>(destination) = static_cast<unsigned short>(word);
+		*reinterpret_cast<uint16_t*>(destination) = static_cast<uint16_t>(word);
 		break;
 
 	case 1:
-		*reinterpret_cast<unsigned char*>(destination) = static_cast<unsigned char>(word);
+		*reinterpret_cast<uint8_t*>(destination) = static_cast<uint8_t>(word);
 		break;
 	}
 }
 
 } // namespace detail
+
 } // namespace doboz
