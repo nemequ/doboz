@@ -3,7 +3,7 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <OutDir>$(SolutionDir)..\Build\Bin\$(Configuration)_$(Platform)\</OutDir>
+    <OutDir>$(SolutionDir)..\Build\$(Configuration)_$(Platform)\</OutDir>
   </PropertyGroup>
   <PropertyGroup>
     <IntDir>$(Configuration)_$(Platform)\</IntDir>
@@ -11,10 +11,12 @@
   <ItemDefinitionGroup>
     <Lib />
     <Link>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\Build\Lib\$(Configuration)_$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\Build\$(Configuration)_$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup />

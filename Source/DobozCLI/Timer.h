@@ -8,9 +8,9 @@
 #include <ctime>
 #endif
 
-#include <stdexcept>
+#include <cassert>
 
-namespace Afra {
+namespace afra {
 
 class Timer
 {
@@ -20,10 +20,10 @@ public:
 #ifdef _WIN32
 		LARGE_INTEGER frequency;
 
-		if (QueryPerformanceFrequency(&frequency) == 0)
-			throw std::runtime_error("timer is not supported");
+		BOOL result = QueryPerformanceFrequency(&frequency);
+		assert(result != 0 && "Timer is not supported.");
 		
-		countsPerSecond_ = (double)frequency.QuadPart;
+		invCountsPerSecond_ = 1.0 / static_cast<double>(frequency.QuadPart);
 #endif
 
 		reset();
@@ -32,13 +32,12 @@ public:
 	void reset()
 	{
 #ifdef _WIN32
-		if (QueryPerformanceCounter(&startCount_) == 0)
-			throw std::runtime_error("could not query counter");
+		BOOL result = QueryPerformanceCounter(&startCount_);
+		assert(result != 0 && "Could not query counter.");
 		
 #else
-		if (clock_gettime(CLOCK_MONOTONIC, &startTime_) != 0) {
-			throw std::runtime_error("could not get time");
-		}
+		int result = clock_gettime(CLOCK_MONOTONIC, &startTime_);
+		assert(result == 0 && "Could not get time.");
 #endif
 	}
 
@@ -47,27 +46,27 @@ public:
 #ifdef _WIN32
 		LARGE_INTEGER currentCount;
 
-		if (QueryPerformanceCounter(&currentCount) == 0)
-			throw std::runtime_error("could not query counter");
+		BOOL result = QueryPerformanceCounter(&currentCount);
+		assert(result != 0 && "Could not query counter.");
 		
-		return (currentCount.QuadPart - startCount_.QuadPart) / countsPerSecond_;
+		return (currentCount.QuadPart - startCount_.QuadPart) * invCountsPerSecond_;
 #else
 		timespec currentTime;
 
-		if (clock_gettime(CLOCK_MONOTONIC, &currentTime) != 0)
-			throw std::runtime_error("could not get time");
+		int result = clock_gettime(CLOCK_MONOTONIC, &currentTime);
+		assert(result == 0 && "Could not get time.");
 		
-		return (double)(currentTime.tv_sec - startTime_.tv_sec) + (currentTime.tv_nsec - startTime_.tv_nsec) * 1e-9;
+		return static_cast<double>(currentTime.tv_sec - startTime_.tv_sec) + (currentTime.tv_nsec - startTime_.tv_nsec) * 1e-9;
 #endif
 	}
 
 private:
 #ifdef _WIN32
-	double        countsPerSecond_;
+	double        invCountsPerSecond_;
 	LARGE_INTEGER startCount_;
 #else
 	timespec      startTime_;
 #endif
 };
 
-} // namespace Afra
+} // namespace afra

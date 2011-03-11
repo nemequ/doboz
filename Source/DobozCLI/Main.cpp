@@ -1,15 +1,14 @@
 #include <iostream>
-#include "../Doboz/Encoder.h"
-#include "../Doboz/Decoder.h"
+#include <Doboz/Encoder.h>
+#include <Doboz/Decoder.h>
 #include "Timer.h"
 
-using namespace Afra;
-using namespace doboz;
+using namespace afra;
 using namespace std;
 
 int main(int argc, char* argv[])
 {
-	cout << "doboz " << VERSION << ".0" << endl;
+	cout << "doboz " << doboz::VERSION << ".0" << endl;
 	cout << "Copyright (c) 2010 Attila T. Afra" << endl;
 	cout << endl;
 
@@ -54,8 +53,8 @@ int main(int argc, char* argv[])
 	{
 		cout << "Compressing...";
 
-		Encoder encoder;
-		Result result;
+		doboz::Encoder encoder;
+		doboz::Result result;
 		size_t outputBufferSize = encoder.getMaxCompressedSize(inputSize);
 		outputBuffer = new char[outputBufferSize];
 
@@ -63,7 +62,7 @@ int main(int argc, char* argv[])
 		result = encoder.encode(inputBuffer, inputSize, outputBuffer, outputBufferSize, outputSize);
 		time = timer.query();
 
-		if (result != RESULT_OK)
+		if (result != doboz::RESULT_OK)
 		{
 			cout << " ERROR!" << endl;
 			delete[] inputBuffer;
@@ -86,9 +85,9 @@ int main(int argc, char* argv[])
 		else
 			cout << "Decompressing...";
 
-		Decoder decoder;
-		CompressionInfo info;
-		if (decoder.getCompressionInfo(inputBuffer, inputSize, info) != RESULT_OK)
+		doboz::Decoder decoder;
+		doboz::CompressionInfo info;
+		if (decoder.getCompressionInfo(inputBuffer, inputSize, info) != doboz::RESULT_OK)
 		{
 			cout << " ERROR!" << endl;
 			delete[] inputBuffer;
@@ -100,7 +99,7 @@ int main(int argc, char* argv[])
 
 		if (benchmark)
 		{
-			Result result;
+			doboz::Result result;
 			
 			time = 10000000000.0f;
 			for (int i = 0; i < 10; ++i)
@@ -112,7 +111,7 @@ int main(int argc, char* argv[])
 					time = currentTime;
 			}
 
-			if (result != RESULT_OK)
+			if (result != doboz::RESULT_OK)
 			{
 				cout << " ERROR!" << endl;
 				delete[] inputBuffer;
@@ -122,13 +121,13 @@ int main(int argc, char* argv[])
 		}
 		else
 		{
-			Result result;
+			doboz::Result result;
 
 			timer.reset();
 			result = decoder.decode(inputBuffer, inputSize, outputBuffer, info.uncompressedSize);
 			time = timer.query();
 
-			if (result != RESULT_OK)
+			if (result != doboz::RESULT_OK)
 			{
 				cout << " ERROR!" << endl;
 				delete[] inputBuffer;
