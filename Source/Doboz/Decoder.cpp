@@ -213,26 +213,6 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 	}	
 }
 
-Result Decoder::getCompressionInfo(const void* source, size_t sourceSize, CompressionInfo& compressionInfo)
-{
-	// Decode the header
-	Header header;
-	int headerSize;
-	Result decodeHeaderResult = decodeHeader(header, source, sourceSize, headerSize);
-
-	if (decodeHeaderResult != RESULT_OK)
-	{
-		return decodeHeaderResult;
-	}
-
-	// Return the requested info
-	compressionInfo.uncompressedSize = header.uncompressedSize;
-	compressionInfo.compressedSize = header.compressedSize;
-	compressionInfo.version = header.version;
-
-	return RESULT_OK;
-}
-
 // Decodes a match and returns its size in bytes
 DOBOZ_FORCEINLINE int Decoder::decodeMatch(Match& match, const void* source)
 {
@@ -323,6 +303,26 @@ Result Decoder::decodeHeader(Header& header, const void* source, size_t sourceSi
 	default:
 		return RESULT_ERROR_CORRUPTED_DATA;
 	}
+
+	return RESULT_OK;
+}
+
+Result Decoder::getCompressionInfo(const void* source, size_t sourceSize, CompressionInfo& compressionInfo)
+{
+	// Decode the header
+	Header header;
+	int headerSize;
+	Result decodeHeaderResult = decodeHeader(header, source, sourceSize, headerSize);
+
+	if (decodeHeaderResult != RESULT_OK)
+	{
+		return decodeHeaderResult;
+	}
+
+	// Return the requested info
+	compressionInfo.uncompressedSize = header.uncompressedSize;
+	compressionInfo.compressedSize = header.compressedSize;
+	compressionInfo.version = header.version;
 
 	return RESULT_OK;
 }
