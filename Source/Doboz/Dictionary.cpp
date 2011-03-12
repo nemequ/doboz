@@ -22,39 +22,26 @@ namespace doboz {
 namespace detail {
 
 Dictionary::Dictionary()
+	: hashTable_(0), children_(0)
 {
 	assert(INVALID_POSITION < 0);
 	assert(REBASE_THRESHOLD > DICTIONARY_SIZE && REBASE_THRESHOLD % DICTIONARY_SIZE == 0);
-
-	hashTable_ = 0;
-	children_ = 0;
 }
 
 Dictionary::~Dictionary()
 {
-	destroy();
+	delete[] hashTable_;
+	delete[] children_;
 }
 
-void Dictionary::init()
+void Dictionary::initialize()
 {
-	// Release the previously allocated resources
-	destroy();
-
 	// Create the hash table
 	hashTable_ = new int[HASH_TABLE_SIZE];
 
 	// Create the tree nodes
 	// The number of nodes is equal to the size of the dictionary, and every node has two children
 	children_ = new int[CHILD_COUNT];
-}
-
-void Dictionary::destroy()
-{
-	delete[] hashTable_;
-	hashTable_ = 0;
-
-	delete[] children_;
-	children_ = 0;
 }
 
 void Dictionary::setBuffer(const uint8_t* buffer, size_t bufferLength)
@@ -80,10 +67,10 @@ void Dictionary::setBuffer(const uint8_t* buffer, size_t bufferLength)
 	// Initialize the relative position base pointer
 	bufferBase_ = buffer_;
 	
-	// Initialize, if necessary
+	// Initialize if necessary
 	if (hashTable_ == 0)
 	{
-		init();
+		initialize();
 	}
 
 	// Clear the hash table

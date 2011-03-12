@@ -54,8 +54,7 @@ private:
 	int* hashTable_; // relative match positions to bufferBase_
 	int* children_; // children of the binary tree nodes (relative match positions to bufferBase_)
 
-	void init();
-	void destroy();
+	void initialize();
 
 	int computeRelativePosition();
 	uint32_t hash(const uint8_t* data);

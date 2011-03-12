@@ -109,7 +109,7 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 				int runLength = literalRunLengthTable[controlWord & 0xf];
 
 				// Advance the inputBuffer and outputBuffer pointers with the run length
-				inputIterator  += runLength;
+				inputIterator += runLength;
 				outputIterator += runLength;
 
 				// Consume as much control word bits as the run length
