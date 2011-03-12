@@ -155,7 +155,7 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 				return RESULT_ERROR_CORRUPTED_DATA;
 			}
 			
-			uint32_t i = 0;
+			int i = 0;
 
 			if (match.offset < WORD_SIZE)
 			{
@@ -218,7 +218,7 @@ Result Decoder::getCompressionInfo(const void* source, size_t sourceSize, Compre
 }
 
 // Decodes a match and returns its size in bytes
-DOBOZ_FORCEINLINE uint32_t Decoder::decodeMatch(Match& match, const void* source)
+DOBOZ_FORCEINLINE int Decoder::decodeMatch(Match& match, const void* source)
 {
 	// Use a decoding lookup table in order to avoid expensive branches
 	static const struct
@@ -227,7 +227,7 @@ DOBOZ_FORCEINLINE uint32_t Decoder::decodeMatch(Match& match, const void* source
 		uint8_t offsetShift;
 		uint8_t lengthMask;
 		uint8_t lengthShift;
-		uint8_t size; // the size of the encoded match in bytes
+		int8_t size; // the size of the encoded match in bytes
 	}
 	lut[] =
 	{
@@ -248,8 +248,8 @@ DOBOZ_FORCEINLINE uint32_t Decoder::decodeMatch(Match& match, const void* source
 	uint32_t i = word & 7;
 
 	// Compute the match offset and length using the lookup table entry
-	match.offset = (word & lut[i].mask) >> lut[i].offsetShift;
-	match.length = ((word >> lut[i].lengthShift) & lut[i].lengthMask) + MIN_MATCH_LENGTH;
+	match.offset = static_cast<int>((word & lut[i].mask) >> lut[i].offsetShift);
+	match.length = static_cast<int>(((word >> lut[i].lengthShift) & lut[i].lengthMask) + MIN_MATCH_LENGTH);
 
 	return lut[i].size;
 }

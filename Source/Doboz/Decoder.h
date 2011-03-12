@@ -18,7 +18,7 @@ public:
 	Result getCompressionInfo(const void* source, size_t sourceSize, CompressionInfo& compressionInfo);
 
 private:
-	uint32_t decodeMatch(detail::Match& match, const void* source);
+	int decodeMatch(detail::Match& match, const void* source);
 	Result decodeHeader(detail::Header& header, const void* source, size_t sourceSize, int& headerSize);
 };
 

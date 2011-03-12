@@ -21,6 +21,7 @@ int main()
 	// Read input file
 	//FILE* f = fopen("..\\..\\..\\Data\\funnyblock", "rb"); // 2982
 	FILE* f = fopen("..\\..\\..\\Data\\gdb.exe", "rb"); // 2982
+	//FILE* f = fopen("..\\..\\..\\Data\\sponza.obj", "rb"); // 2982
 	//FILE* f = fopen("test\\blockdump", "rb");
 	//FILE* f = fopen("test\\cine", "rb"); // 27081, 25716K!!!
 	//FILE* f = fopen("..\\..\\..\\Data\\cine", "rb"); // 2982

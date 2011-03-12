@@ -25,11 +25,11 @@ void Dictionary::init()
 	destroy();
 
 	// Create the hash table
-	hashTable_ = new int32_t[HASH_TABLE_SIZE];
+	hashTable_ = new int[HASH_TABLE_SIZE];
 
 	// Create the tree nodes
 	// The number of nodes is equal to the size of the dictionary, and every node has two children
-	children_ = new int32_t[CHILD_COUNT];
+	children_ = new int[CHILD_COUNT];
 }
 
 void Dictionary::destroy()
@@ -106,7 +106,7 @@ int Dictionary::findMatches(Match* matchCandidates)
 	int minMatchPosition = (position < DICTIONARY_SIZE) ? 0 : (position - DICTIONARY_SIZE + 1);
 
 	// Compute the hash value for the current string
-	uint32_t hashValue = hash(bufferBase_ + position) % HASH_TABLE_SIZE;
+	int hashValue = hash(bufferBase_ + position) % HASH_TABLE_SIZE;
 
 	// Get the position of the first match from the hash table
 	int matchPosition = hashTable_[hashValue];
@@ -174,8 +174,8 @@ int Dictionary::findMatches(Match* matchCandidates)
 			// Add the current best match to the list of good match candidates
 			if (matchCandidates != 0)
 			{
-				matchCandidates[matchCandidateCount].length = static_cast<uint32_t>(matchLength);
-				matchCandidates[matchCandidateCount].offset = static_cast<uint32_t>(matchOffset);
+				matchCandidates[matchCandidateCount].length = matchLength;
+				matchCandidates[matchCandidateCount].offset = matchOffset;
 				++matchCandidateCount;
 			}
 

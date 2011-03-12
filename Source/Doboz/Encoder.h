@@ -20,8 +20,8 @@ private:
 
 	Result encodeStored(const void* source, size_t sourceSize, void* destination, size_t& compressedSize);
 	detail::Match getBestMatch(detail::Match* matchCandidates, int matchCandidateCount);
-	uint32_t encodeMatch(const detail::Match& match, void* destination);
-	uint32_t getMatchCodedSize(const detail::Match& match);
+	int encodeMatch(const detail::Match& match, void* destination);
+	int getMatchCodedSize(const detail::Match& match);
 	void encodeHeader(const detail::Header& header, size_t maxCompressedSize, void* destination);
 };
 

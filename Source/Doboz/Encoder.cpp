@@ -40,7 +40,7 @@ Result Encoder::encode(const void* source, size_t sourceSize, void* destination,
 	// The highest bit of a control word is a guard bit, which marks the end of the bit list
 	// The guard bit simplifies and speeds up the decoding process, and it 
 	const int controlWordBitCount = WORD_SIZE * 8 - 1;
-	const uint32_t controlWordGuardBit = 1 << controlWordBitCount;
+	const uint32_t controlWordGuardBit = 1u << controlWordBitCount;
 	uint32_t controlWord = controlWordGuardBit;
 	int controlWordBit = 0;
 
@@ -127,7 +127,7 @@ Result Encoder::encode(const void* source, size_t sourceSize, void* destination,
 			outputIterator += encodeMatch(match, outputIterator);
 			
 			// Skip the matched characters
-			for (uint32_t i = 0; i < match.length - 2; ++i)
+			for (int i = 0; i < match.length - 2; ++i)
 			{
 				dictionary_.skip();
 			}
@@ -212,16 +212,16 @@ Match Encoder::getBestMatch(Match* matchCandidates, int matchCandidateCount)
 	return bestMatch;
 }
 
-uint32_t Encoder::encodeMatch(const Match& match, void* destination)
+int Encoder::encodeMatch(const Match& match, void* destination)
 {
 	assert(match.length <= MAX_MATCH_LENGTH);
 	assert(match.length == 0 || match.offset < DICTIONARY_SIZE);
 
 	uint32_t word;
-	uint32_t size;
+	int size;
 
-	uint32_t lengthCode = match.length - MIN_MATCH_LENGTH;
-	uint32_t offsetCode = match.offset;
+	uint32_t lengthCode = static_cast<uint32_t>(match.length - MIN_MATCH_LENGTH);
+	uint32_t offsetCode = static_cast<uint32_t>(match.offset);
 
 	if (lengthCode == 0 && offsetCode < 64)
 	{
@@ -257,7 +257,7 @@ uint32_t Encoder::encodeMatch(const Match& match, void* destination)
 	return size;
 }
 
-uint32_t Encoder::getMatchCodedSize(const Match& match)
+int Encoder::getMatchCodedSize(const Match& match)
 {
 	return encodeMatch(match, 0);
 }

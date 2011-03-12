@@ -29,8 +29,8 @@ namespace detail {
 
 struct Match
 {
-	uint32_t length;
-	uint32_t offset;
+	int length;
+	int offset;
 };
 
 struct Header
