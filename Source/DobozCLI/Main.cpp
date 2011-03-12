@@ -8,8 +8,8 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-	cout << "doboz " << doboz::VERSION << ".0" << endl;
-	cout << "Copyright (c) 2010 Attila T. Afra" << endl;
+	cout << "Doboz " << doboz::VERSION << ".0" << endl;
+	cout << "Copyright (C) 2010-2011 Attila T. Afra <attila.afra@gmail.com>" << endl;
 	cout << endl;
 
 	if (argc != 4 || (argv[1][0] != 'c' && argv[1][0] != 'd' && argv[1][0] != 'D'))
