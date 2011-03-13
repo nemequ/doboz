@@ -13,6 +13,9 @@ using namespace Afra;
 using namespace doboz;
 using namespace std;
 
+qlz_state_compress qlzCompressScratch;
+qlz_state_decompress qlzDecompressScratch;
+
 int main()
 {
 	//SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
@@ -155,10 +158,9 @@ int main()
 	cout << endl << endl;
 	cout << "Encoding with QuickLZ..." << endl;
 
-	char* qlzCompressScratch = new char[QLZ_SCRATCH_COMPRESS];
 	char* qlzBuffer = new char[size * 2];
 
-	int qlzSize = qlz_compress(inputBuffer, qlzBuffer, size, qlzCompressScratch);
+	int qlzSize = qlz_compress(inputBuffer, qlzBuffer, size, &qlzCompressScratch);
 
 	cout << qlzSize / 1024 << " KB" << endl;
 	cout << endl;
@@ -166,14 +168,12 @@ int main()
 	// Decode with QuickLZ
 	cout << "Decoding with QuickLZ..." << endl;
 
-	char* qlzDecompressScratch = new char[QLZ_SCRATCH_DECOMPRESS];
-
 	totalSpeed = 0;
 	maxSpeed = 0.0f;
 	for (int i = 0; i < decodeCount; ++i)
 	{
 		timer.reset();
-		qlz_decompress(qlzBuffer, decodedBuffer, qlzDecompressScratch);
+		qlz_decompress(qlzBuffer, decodedBuffer, &qlzDecompressScratch);
 		double speed = (double)size / (1024*1024) / timer.query();
 		if (speed > maxSpeed)
 			maxSpeed = speed;

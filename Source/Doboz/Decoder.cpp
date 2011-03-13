@@ -97,7 +97,7 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 			// If we are before the tail, we can safely use fast writing operations
 			if (outputIterator < outputTail)
 			{
-				// We copy literals in runs of up to 4, because it's faster than copying one by one
+				// We copy literals in runs of up to 4 because it's faster than copying one by one
 
 				// Copy implicitly 4 literals regardless of the run length
 				assert(inputIterator + 4 <= inputEnd);
@@ -155,8 +155,8 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 			// It's a match
 
 			// Decode the match
-			Match match;
 			assert(inputIterator + WORD_SIZE <= inputEnd);
+			Match match;
 			inputIterator += decodeMatch(match, inputIterator);
 
 			// Copy the matched string
@@ -182,7 +182,6 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 					assert(matchString >= outputBuffer);
 					assert(matchString + i + WORD_SIZE <= outputEnd);
 					assert(outputIterator + i + WORD_SIZE <= outputEnd);
-
 					fastWrite(outputIterator + i, fastRead(matchString + i, 1), 1);
 					++i;
 				}
@@ -199,7 +198,6 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 				assert(matchString >= outputBuffer);
 				assert(matchString + i + WORD_SIZE <= outputEnd);
 				assert(outputIterator + i + WORD_SIZE <= outputEnd);
-
 				fastWrite(outputIterator + i, fastRead(matchString + i, WORD_SIZE), WORD_SIZE);
 				i += WORD_SIZE;
 			}
