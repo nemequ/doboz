@@ -66,7 +66,7 @@ const int MAX_MATCH_CANDIDATE_COUNT = 128;
 const int DICTIONARY_SIZE = 1 << 21; // 2 MB, must be a power of 2!
 
 const int TAIL_LENGTH = 2 * WORD_SIZE; // prevents fast write operations from writing beyond the end of the buffer during decoding
-const int DUMMY_SIZE = WORD_SIZE; // safety trailing bytes which decrease the number of necessary buffer checks
+const int TRAILING_DUMMY_SIZE = WORD_SIZE; // safety trailing bytes which decrease the number of necessary buffer checks
 
 
 // Reads up to 4 bytes and returns them in a word

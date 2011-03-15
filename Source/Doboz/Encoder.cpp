@@ -88,7 +88,7 @@ Result Encoder::encode(const void* source, size_t sourceSize, void* destination,
 	{
 		// Check whether the output is too large
 		// During each iteration, we may output up to 8 bytes (2 words), and the compressed stream ends with 4 dummy bytes
-		if (outputIterator + 2 * WORD_SIZE + DUMMY_SIZE > maxOutputEnd)
+		if (outputIterator + 2 * WORD_SIZE + TRAILING_DUMMY_SIZE > maxOutputEnd)
 		{
 			// Stop the compression and instead store
 			return encodeStored(source, sourceSize, destination, compressedSize);
@@ -161,9 +161,9 @@ Result Encoder::encode(const void* source, size_t sourceSize, void* destination,
 
 	// Output trailing safety dummy bytes
 	// This reduces the number of necessary buffer checks during decoding
-	assert(outputIterator + DUMMY_SIZE <= outputEnd);
-	fastWrite(outputIterator, 0, DUMMY_SIZE);
-	outputIterator += DUMMY_SIZE;
+	assert(outputIterator + TRAILING_DUMMY_SIZE <= outputEnd);
+	fastWrite(outputIterator, 0, TRAILING_DUMMY_SIZE);
+	outputIterator += TRAILING_DUMMY_SIZE;
 
 	// Done, compute the compressed size
 	compressedSize = outputIterator - outputBuffer;

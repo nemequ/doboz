@@ -61,7 +61,7 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 		return RESULT_OK;
 	}
 
-	const uint8_t* inputEnd = inputBuffer + uncompressedSize;
+	const uint8_t* inputEnd = inputBuffer + static_cast<size_t>(header.compressedSize);
 	uint8_t* outputEnd = outputBuffer + uncompressedSize;
 
 	// Compute pointer to the first byte of the output 'tail'
@@ -76,6 +76,7 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 	{
 		// Check whether there is enough data left in the input buffer
 		// In order to decode the next literal/match, we have to read up to 8 bytes (2 words)
+		// Thanks to the trailing dummy, there must be at least 8 remaining input bytes
 		if (inputIterator + 2 * WORD_SIZE > inputEnd)
 		{
 			return RESULT_ERROR_CORRUPTED_DATA;
@@ -158,11 +159,11 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 			assert(inputIterator + WORD_SIZE <= inputEnd);
 			Match match;
 			inputIterator += decodeMatch(match, inputIterator);
+			//assert(match.offset > 0);
 
 			// Copy the matched string
 			// In order to achieve high performance, we copy characters in groups of machine words
-			// We have to correctly handle overlaps, so after copying a word, we can advance the pointers only by the minimum possible match offset
-			// If the minimum match offset is equal to the word size, the copying has maximum efficiency
+			// Overlapping matches require special care
 			uint8_t* matchString = outputIterator - match.offset;
 
 			// Check whether the match is out of range
@@ -179,7 +180,7 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 				// In order to correctly handle the overlap, we have to copy the first three bytes one by one
 				do
 				{
-					assert(matchString >= outputBuffer);
+					assert(matchString + i >= outputBuffer);
 					assert(matchString + i + WORD_SIZE <= outputEnd);
 					assert(outputIterator + i + WORD_SIZE <= outputEnd);
 					fastWrite(outputIterator + i, fastRead(matchString + i, 1), 1);
@@ -188,14 +189,17 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 				while (i < 3);
 
 				// With this trick, we increase the distance between the source and destination pointers
+				// This enables us to use fast copying for the rest of the match
 				matchString -= 2 + (match.offset & 1);
 			}
 
-			assert(outputIterator - matchString >= WORD_SIZE);
+			// Fast copying
+			// There must be no overlap between the source and destination words
+			//assert(outputIterator - matchString >= WORD_SIZE);
 
 			do
 			{
-				assert(matchString >= outputBuffer);
+				assert(matchString + i >= outputBuffer);
 				assert(matchString + i + WORD_SIZE <= outputEnd);
 				assert(outputIterator + i + WORD_SIZE <= outputEnd);
 				fastWrite(outputIterator + i, fastRead(matchString + i, WORD_SIZE), WORD_SIZE);
@@ -208,7 +212,7 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 			// Next control word bit
 			controlWord >>= 1;
 		}
-	}	
+	}
 }
 
 // Decodes a match and returns its size in bytes
