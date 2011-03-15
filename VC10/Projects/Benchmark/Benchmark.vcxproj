@@ -18,17 +18,10 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\..\Source\Test\Test.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\Source\Test\FastRng.h" />
-    <ClInclude Include="..\..\..\Source\Test\Timer.h" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{A02FBE31-D59D-4222-AF81-AEBC62125DC4}</ProjectGuid>
+    <ProjectGuid>{DB9A88FA-9BF5-40E3-BCDC-453C63E3B403}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Test</RootNamespace>
+    <RootNamespace>Benchmark</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -153,6 +146,40 @@
       <AdditionalDependencies>Doboz.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\Source\Benchmark\Benchmark.cpp" />
+    <ClCompile Include="..\..\..\Source\Benchmark\qlz\quicklz.c" />
+    <ClCompile Include="..\..\..\Source\Benchmark\zlib\adler32.c" />
+    <ClCompile Include="..\..\..\Source\Benchmark\zlib\compress.c" />
+    <ClCompile Include="..\..\..\Source\Benchmark\zlib\crc32.c" />
+    <ClCompile Include="..\..\..\Source\Benchmark\zlib\deflate.c" />
+    <ClCompile Include="..\..\..\Source\Benchmark\zlib\gzclose.c" />
+    <ClCompile Include="..\..\..\Source\Benchmark\zlib\gzlib.c" />
+    <ClCompile Include="..\..\..\Source\Benchmark\zlib\gzread.c" />
+    <ClCompile Include="..\..\..\Source\Benchmark\zlib\gzwrite.c" />
+    <ClCompile Include="..\..\..\Source\Benchmark\zlib\infback.c" />
+    <ClCompile Include="..\..\..\Source\Benchmark\zlib\inffast.c" />
+    <ClCompile Include="..\..\..\Source\Benchmark\zlib\inflate.c" />
+    <ClCompile Include="..\..\..\Source\Benchmark\zlib\inftrees.c" />
+    <ClCompile Include="..\..\..\Source\Benchmark\zlib\trees.c" />
+    <ClCompile Include="..\..\..\Source\Benchmark\zlib\uncompr.c" />
+    <ClCompile Include="..\..\..\Source\Benchmark\zlib\zutil.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Source\Benchmark\qlz\quicklz.h" />
+    <ClInclude Include="..\..\..\Source\Benchmark\Timer.h" />
+    <ClInclude Include="..\..\..\Source\Benchmark\zlib\crc32.h" />
+    <ClInclude Include="..\..\..\Source\Benchmark\zlib\deflate.h" />
+    <ClInclude Include="..\..\..\Source\Benchmark\zlib\gzguts.h" />
+    <ClInclude Include="..\..\..\Source\Benchmark\zlib\inffast.h" />
+    <ClInclude Include="..\..\..\Source\Benchmark\zlib\inffixed.h" />
+    <ClInclude Include="..\..\..\Source\Benchmark\zlib\inflate.h" />
+    <ClInclude Include="..\..\..\Source\Benchmark\zlib\inftrees.h" />
+    <ClInclude Include="..\..\..\Source\Benchmark\zlib\trees.h" />
+    <ClInclude Include="..\..\..\Source\Benchmark\zlib\zconf.h" />
+    <ClInclude Include="..\..\..\Source\Benchmark\zlib\zlib.h" />
+    <ClInclude Include="..\..\..\Source\Benchmark\zlib\zutil.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -1,3 +1,19 @@
+/*
+ * Doboz Data Compression Library
+ * Copyright (C) 2010-2011 Attila T. Afra <attila.afra@gmail.com>
+ * 
+ * This program is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along with this program. If
+ * not, see <http://www.gnu.org/licenses/>.
+ */
+
 #pragma once
 
 #ifdef _WIN32
@@ -8,9 +24,9 @@
 #include <ctime>
 #endif
 
-#include <stdexcept>
+#include <cassert>
 
-namespace Afra {
+namespace afra {
 
 class Timer
 {
@@ -20,10 +36,10 @@ public:
 #ifdef _WIN32
 		LARGE_INTEGER frequency;
 
-		if (QueryPerformanceFrequency(&frequency) == 0)
-			throw std::runtime_error("timer is not supported");
+		BOOL result = QueryPerformanceFrequency(&frequency);
+		assert(result != 0 && "Timer is not supported.");
 		
-		countsPerSecond_ = (double)frequency.QuadPart;
+		invCountsPerSecond_ = 1.0 / static_cast<double>(frequency.QuadPart);
 #endif
 
 		reset();
@@ -32,13 +48,12 @@ public:
 	void reset()
 	{
 #ifdef _WIN32
-		if (QueryPerformanceCounter(&startCount_) == 0)
-			throw std::runtime_error("could not query counter");
+		BOOL result = QueryPerformanceCounter(&startCount_);
+		assert(result != 0 && "Could not query counter.");
 		
 #else
-		if (clock_gettime(CLOCK_MONOTONIC, &startTime_) != 0) {
-			throw std::runtime_error("could not get time");
-		}
+		int result = clock_gettime(CLOCK_MONOTONIC, &startTime_);
+		assert(result == 0 && "Could not get time.");
 #endif
 	}
 
@@ -47,27 +62,27 @@ public:
 #ifdef _WIN32
 		LARGE_INTEGER currentCount;
 
-		if (QueryPerformanceCounter(&currentCount) == 0)
-			throw std::runtime_error("could not query counter");
+		BOOL result = QueryPerformanceCounter(&currentCount);
+		assert(result != 0 && "Could not query counter.");
 		
-		return (currentCount.QuadPart - startCount_.QuadPart) / countsPerSecond_;
+		return (currentCount.QuadPart - startCount_.QuadPart) * invCountsPerSecond_;
 #else
 		timespec currentTime;
 
-		if (clock_gettime(CLOCK_MONOTONIC, &currentTime) != 0)
-			throw std::runtime_error("could not get time");
+		int result = clock_gettime(CLOCK_MONOTONIC, &currentTime);
+		assert(result == 0 && "Could not get time.");
 		
-		return (double)(currentTime.tv_sec - startTime_.tv_sec) + (currentTime.tv_nsec - startTime_.tv_nsec) * 1e-9;
+		return static_cast<double>(currentTime.tv_sec - startTime_.tv_sec) + (currentTime.tv_nsec - startTime_.tv_nsec) * 1e-9;
 #endif
 	}
 
 private:
 #ifdef _WIN32
-	double        countsPerSecond_;
+	double        invCountsPerSecond_;
 	LARGE_INTEGER startCount_;
 #else
 	timespec      startTime_;
 #endif
 };
 
-} // namespace Afra
+} // namespace afra
