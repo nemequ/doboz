@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 	}
 
 	fseek(inputStream, 0, SEEK_END);
-	unsigned long long inputSize = _ftelli64(inputStream);
+	uint64_t inputSize = ftell(inputStream);
 	fseek(inputStream, 0, SEEK_SET);
 
 	cout << "Reading input file...";

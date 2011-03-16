@@ -189,7 +189,7 @@ bool loadFile(char* filename)
 	}
 
 	fseek(file, 0, SEEK_END);
-	originalSize = static_cast<size_t>(_ftelli64(file));
+	originalSize = ftell(file);
 	fseek(file, 0, SEEK_SET);
 
 	cout << "Loading file \"" << filename << "\"..." << endl;
