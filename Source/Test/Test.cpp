@@ -157,7 +157,7 @@ bool corruptionTest()
 		int errorCount = (rng.getUint() % maxErrorCount) + 1;
 		for (int j = 0; j < errorCount; ++j)
 		{
-			int errorPosition = rng.getUint() % static_cast<uint32_t>(originalSize);
+			int errorPosition = rng.getUint() % static_cast<uint32_t>(compressedSize);
 			tempCompressedBuffer[errorPosition] = rng.getUint() % 256;
 		}
 
@@ -254,5 +254,16 @@ int main(int argc, char* argv[])
 	allOk = allOk && incrementalTest();
 
 	cleanup();
+
+	cout << endl;
+	if (allOk)
+	{
+		cerr << "OK" << endl;
+	}
+	else
+	{
+		cerr << "ERROR" << endl;
+	}
+
 	return 0;
 }

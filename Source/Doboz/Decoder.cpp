@@ -159,7 +159,6 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 			assert(inputIterator + WORD_SIZE <= inputEnd);
 			Match match;
 			inputIterator += decodeMatch(match, inputIterator);
-			//assert(match.offset > 0);
 
 			// Copy the matched string
 			// In order to achieve high performance, we copy characters in groups of machine words
@@ -195,7 +194,6 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 
 			// Fast copying
 			// There must be no overlap between the source and destination words
-			//assert(outputIterator - matchString >= WORD_SIZE);
 
 			do
 			{
@@ -272,7 +270,7 @@ Result Decoder::decodeHeader(Header& header, const void* source, size_t sourceSi
 	// Compute the size of the header
 	headerSize = 1 + 2 * sizeCodedSize;
 
-	if (sourceSize < headerSize)
+	if (sourceSize < static_cast<size_t>(headerSize))
 	{
 		return RESULT_ERROR_BUFFER_TOO_SMALL;
 	}
