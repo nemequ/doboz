@@ -21,10 +21,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\Test\Test.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\Source\Test\FastRng.h" />
-    <ClInclude Include="..\..\..\Source\Test\Timer.h" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A02FBE31-D59D-4222-AF81-AEBC62125DC4}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

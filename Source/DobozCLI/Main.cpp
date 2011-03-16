@@ -15,9 +15,9 @@
  */
 
 #include <iostream>
-#include <Doboz/Encoder.h>
-#include <Doboz/Decoder.h>
-#include "Timer.h"
+#include "Doboz/Encoder.h"
+#include "Doboz/Decoder.h"
+#include "Utils/Timer.h"
 
 using namespace afra;
 using namespace std;

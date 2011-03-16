@@ -65,9 +65,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\Source\Benchmark\Timer.h">
-      <Filter>Source</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Source\Benchmark\qlz\quicklz.h">
       <Filter>Source\qlz</Filter>
     </ClInclude>

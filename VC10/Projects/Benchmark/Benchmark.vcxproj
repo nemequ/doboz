@@ -167,7 +167,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\Benchmark\qlz\quicklz.h" />
-    <ClInclude Include="..\..\..\Source\Benchmark\Timer.h" />
     <ClInclude Include="..\..\..\Source\Benchmark\zlib\crc32.h" />
     <ClInclude Include="..\..\..\Source\Benchmark\zlib\deflate.h" />
     <ClInclude Include="..\..\..\Source\Benchmark\zlib\gzguts.h" />

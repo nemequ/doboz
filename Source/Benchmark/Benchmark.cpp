@@ -17,9 +17,9 @@
 #include <cstdio>
 #include <iostream>
 #include <algorithm>
-#include <Doboz/Encoder.h>
-#include <Doboz/Decoder.h>
-#include "Timer.h"
+#include "Doboz/Encoder.h"
+#include "Doboz/Decoder.h"
+#include "Utils/Timer.h"
 #include "qlz/quicklz.h"
 #include "zlib/zlib.h"
 

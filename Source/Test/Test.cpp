@@ -17,10 +17,10 @@
 #include <cstdio>
 #include <iostream>
 #include <algorithm>
-#include <Doboz/Encoder.h>
-#include <Doboz/Decoder.h>
-#include "Timer.h"
-#include "FastRng.h"
+#include "Doboz/Encoder.h"
+#include "Doboz/Decoder.h"
+#include "Utils/Timer.h"
+#include "Utils/FastRng.h"
 
 using namespace std;
 using namespace afra;

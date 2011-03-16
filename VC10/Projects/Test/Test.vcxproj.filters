@@ -10,12 +10,4 @@
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\Source\Test\FastRng.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Test\Timer.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-  </ItemGroup>
 </Project>
