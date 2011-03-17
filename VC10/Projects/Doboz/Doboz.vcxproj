@@ -20,17 +20,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\Doboz\Common.h" />
-    <ClInclude Include="..\..\..\Source\Doboz\Decoder.h" />
+    <ClInclude Include="..\..\..\Source\Doboz\Compressor.h" />
+    <ClInclude Include="..\..\..\Source\Doboz\Decompressor.h" />
     <ClInclude Include="..\..\..\Source\Doboz\Dictionary.h" />
-    <ClInclude Include="..\..\..\Source\Doboz\Encoder.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\Source\Doboz\Decoder.cpp" />
+    <ClCompile Include="..\..\..\Source\Doboz\Compressor.cpp" />
+    <ClCompile Include="..\..\..\Source\Doboz\Decompressor.cpp" />
     <ClCompile Include="..\..\..\Source\Doboz\Dictionary.cpp" />
-    <ClCompile Include="..\..\..\Source\Doboz\Encoder.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{A68A15C3-A449-4F2E-92C8-5E0F446D7E38}</ProjectGuid>
+    <ProjectGuid>{D9C83466-3B89-4F02-9BD9-2E9CFA6B470F}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Doboz</RootNamespace>
   </PropertyGroup>
@@ -86,7 +86,7 @@
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -99,7 +99,7 @@
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -110,7 +110,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
@@ -127,7 +127,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>

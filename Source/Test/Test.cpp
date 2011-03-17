@@ -15,10 +15,11 @@
  */
 
 #include <cstdio>
+#include <climits>
 #include <iostream>
 #include <algorithm>
-#include "Doboz/Encoder.h"
-#include "Doboz/Decoder.h"
+#include "Doboz/Compressor.h"
+#include "Doboz/Decompressor.h"
 #include "Utils/Timer.h"
 #include "Utils/FastRng.h"
 
@@ -37,34 +38,51 @@ size_t compressedBufferSize;
 
 char* decompressedBuffer = 0;
 
+#if defined(_WIN32)
+#define FSEEK64 _fseeki64
+#define FTELL64 _ftelli64
+#else
+#define FSEEK64 fseeko64
+#define FTELL64 ftello64
+#endif
 
 bool loadFile(char* filename)
 {
 	FILE* file = fopen(filename, "rb");
-
 	if (file == 0)
 	{
-		cout << "ERROR: Could not open file \"" << filename << "\"" << endl;
-		return 1;
+		cout << "ERROR: Cannot open file \"" << filename << "\"" << endl;
+		return false;
 	}
 
-	fseek(file, 0, SEEK_END);
-	originalSize = ftell(file);
-	fseek(file, 0, SEEK_SET);
+	FSEEK64(file, 0, SEEK_END);
+	uint64_t originalSize64 = FTELL64(file);
+	if (doboz::Compressor::getMaxCompressedSize(originalSize64) > SIZE_MAX)
+	{
+		cout << "ERROR: File \"" << filename << "\" is too large" << endl;
+		fclose(file);
+		return false;
+	}
+	originalSize = static_cast<size_t>(originalSize64);
+	FSEEK64(file, 0, SEEK_SET);
 
 	cout << "Loading file \"" << filename << "\"..." << endl;
-	cout << "File size: " << static_cast<double>(originalSize) / MEGABYTE << " MB" << endl;
 
 	originalBuffer = new char[originalSize];
 
-	fread(originalBuffer, 1, originalSize, file);
+	if (fread(originalBuffer, 1, originalSize, file) != originalSize)
+	{
+		cout << "ERROR: I/O error" << endl;
+		fclose(file);
+		return false;
+	}
 	fclose(file);
 	return true;
 }
 
 void initializeTests()
 {
-	compressedBufferSize = doboz::Encoder::getMaxCompressedSize(originalSize);
+	compressedBufferSize = doboz::Compressor::getMaxCompressedSize(originalSize);
 	compressedBuffer = new char[compressedBufferSize];
 	tempCompressedBuffer = new char[compressedBufferSize];
 
@@ -100,11 +118,11 @@ void prepareDecompression()
 }
 
 // Decompresses from tempCompressedBuffer!
-bool decode()
+bool decompress()
 {
-	doboz::Decoder decoder;
+	doboz::Decompressor decompressor;
 
-	doboz::Result result = decoder.decode(tempCompressedBuffer, compressedSize, decompressedBuffer, originalSize);
+	doboz::Result result = decompressor.decompress(tempCompressedBuffer, compressedSize, decompressedBuffer, originalSize);
 	if (result != doboz::RESULT_OK)
 		return false;
 
@@ -113,13 +131,13 @@ bool decode()
 
 bool basicTest()
 {
-	doboz::Encoder encoder;
+	doboz::Compressor compressor;
 	doboz::Result result;
 
 	cout << "Basic test" << endl;
 	cout << "Encoding..." << endl;
 	memset(compressedBuffer, 0, compressedBufferSize);
-	result = encoder.encode(originalBuffer, originalSize, compressedBuffer, compressedBufferSize, compressedSize);
+	result = compressor.compress(originalBuffer, originalSize, compressedBuffer, compressedBufferSize, compressedSize);
 	if (result != doboz::RESULT_OK)
 	{
 		cout << "Encoding FAILED" << endl;
@@ -128,7 +146,7 @@ bool basicTest()
 
 	cout << "Decoding..." << endl;
 	prepareDecompression();
-	if (!decode())
+	if (!decompress())
 	{
 		cout << "Decoding/verification FAILED" << endl;
 		return false;
@@ -161,9 +179,9 @@ bool corruptionTest()
 			tempCompressedBuffer[errorPosition] = rng.getUint() % 256;
 		}
 
-		// Try to decode
-		doboz::Decoder decoder;
-		doboz::Result result = decoder.decode(tempCompressedBuffer, compressedSize, decompressedBuffer, originalSize);
+		// Try to decompress
+		doboz::Decompressor decompressor;
+		doboz::Result result = decompressor.decompress(tempCompressedBuffer, compressedSize, decompressedBuffer, originalSize);
 		if (result != doboz::RESULT_OK)
 		{
 			++failedDecodingCount;
@@ -177,7 +195,7 @@ bool corruptionTest()
 
 bool incrementalTest()
 {
-	doboz::Encoder encoder;
+	doboz::Compressor compressor;
 	doboz::Result result;
 
 	cout << "Incremental input size test" << endl;
@@ -190,7 +208,7 @@ bool incrementalTest()
 
 		originalSize = i;
 		memset(compressedBuffer, 0, compressedBufferSize);
-		result = encoder.encode(originalBuffer, originalSize, compressedBuffer, compressedBufferSize, compressedSize);
+		result = compressor.compress(originalBuffer, originalSize, compressedBuffer, compressedBufferSize, compressedSize);
 		if (result != doboz::RESULT_OK)
 		{
 			cout << endl << "Encoding FAILED" << endl;
@@ -199,7 +217,7 @@ bool incrementalTest()
 		}
 
 		prepareDecompression();
-		if (!decode())
+		if (!decompress())
 		{
 			cout << endl << "Decoding/verification FAILED" << endl;
 			originalSize = totalOriginalSize;

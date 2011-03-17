@@ -15,13 +15,13 @@
  */
 
 #include <cstring>
-#include "Decoder.h"
+#include "Decompressor.h"
 
 namespace doboz {
 
 using namespace detail;
 
-Result Decoder::decode(const void* source, size_t sourceSize, void* destination, size_t destinationSize)
+Result Decompressor::decompress(const void* source, size_t sourceSize, void* destination, size_t destinationSize)
 {
 	const uint8_t* inputBuffer = static_cast<const uint8_t*>(source);
 	const uint8_t* inputIterator = inputBuffer;
@@ -214,7 +214,7 @@ Result Decoder::decode(const void* source, size_t sourceSize, void* destination,
 }
 
 // Decodes a match and returns its size in bytes
-DOBOZ_FORCEINLINE int Decoder::decodeMatch(Match& match, const void* source)
+DOBOZ_FORCEINLINE int Decompressor::decodeMatch(Match& match, const void* source)
 {
 	// Use a decoding lookup table in order to avoid expensive branches
 	static const struct
@@ -252,7 +252,7 @@ DOBOZ_FORCEINLINE int Decoder::decodeMatch(Match& match, const void* source)
 
 // Decodes a header and returns its size in bytes
 // If the header is not valid, the function returns 0
-Result Decoder::decodeHeader(Header& header, const void* source, size_t sourceSize, int& headerSize)
+Result Decompressor::decodeHeader(Header& header, const void* source, size_t sourceSize, int& headerSize)
 {
 	const uint8_t* inputIterator = static_cast<const uint8_t*>(source);
 
@@ -307,7 +307,7 @@ Result Decoder::decodeHeader(Header& header, const void* source, size_t sourceSi
 	return RESULT_OK;
 }
 
-Result Decoder::getCompressionInfo(const void* source, size_t sourceSize, CompressionInfo& compressionInfo)
+Result Decompressor::getCompressionInfo(const void* source, size_t sourceSize, CompressionInfo& compressionInfo)
 {
 	// Decode the header
 	Header header;

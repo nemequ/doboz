@@ -16,21 +16,20 @@
 
 #include <cstring>
 #include <algorithm>
-#include "Encoder.h"
+#include "Compressor.h"
 
 namespace doboz {
 
 using namespace detail;
 
-Result Encoder::encode(const void* source, size_t sourceSize, void* destination, size_t destinationSize, size_t& compressedSize)
+Result Compressor::compress(const void* source, size_t sourceSize, void* destination, size_t destinationSize, size_t& compressedSize)
 {
 	if (sourceSize == 0)
 	{
 		return RESULT_ERROR_BUFFER_TOO_SMALL;
 	}
 
-	size_t maxCompressedSize = getMaxCompressedSize(sourceSize);
-
+	uint64_t maxCompressedSize = getMaxCompressedSize(sourceSize);
 	if (destinationSize < maxCompressedSize)
 	{
 		return RESULT_ERROR_BUFFER_TOO_SMALL;
@@ -38,12 +37,11 @@ Result Encoder::encode(const void* source, size_t sourceSize, void* destination,
 
 	const uint8_t* inputBuffer = static_cast<const uint8_t*>(source);
 	uint8_t* outputBuffer = static_cast<uint8_t*>(destination);
-
 	uint8_t* outputEnd = outputBuffer + destinationSize;
 
 	// Compute the maximum output end pointer
 	// We use this to determine whether we should store the data instead of compressing it
-	uint8_t* maxOutputEnd = outputBuffer + maxCompressedSize;
+	uint8_t* maxOutputEnd = outputBuffer + static_cast<size_t>(maxCompressedSize);
 
 	// Allocate the header
 	uint8_t* outputIterator = outputBuffer;
@@ -91,7 +89,7 @@ Result Encoder::encode(const void* source, size_t sourceSize, void* destination,
 		if (outputIterator + 2 * WORD_SIZE + TRAILING_DUMMY_SIZE > maxOutputEnd)
 		{
 			// Stop the compression and instead store
-			return encodeStored(source, sourceSize, destination, compressedSize);
+			return store(source, sourceSize, destination, compressedSize);
 		}
 
 		// Check whether the control word must be flushed
@@ -182,13 +180,13 @@ Result Encoder::encode(const void* source, size_t sourceSize, void* destination,
 }
 
 // Store the source
-Result Encoder::encodeStored(const void* source, size_t sourceSize, void* destination, size_t& compressedSize)
+Result Compressor::store(const void* source, size_t sourceSize, void* destination, size_t& compressedSize)
 {
 	uint8_t* outputBuffer = static_cast<uint8_t*>(destination);
 	uint8_t* outputIterator = outputBuffer;
 
 	// Encode the header
-	size_t maxCompressedSize = getMaxCompressedSize(sourceSize);
+	uint64_t maxCompressedSize = getMaxCompressedSize(sourceSize);
 	int headerSize = getHeaderSize(maxCompressedSize);
 
 	compressedSize = headerSize + sourceSize;
@@ -210,7 +208,7 @@ Result Encoder::encodeStored(const void* source, size_t sourceSize, void* destin
 }
 
 // Selects the best match from a list of match candidates provided by the match finder
-Match Encoder::getBestMatch(Match* matchCandidates, int matchCandidateCount)
+Match Compressor::getBestMatch(Match* matchCandidates, int matchCandidateCount)
 {
 	Match bestMatch;
 	bestMatch.length = 0;
@@ -228,7 +226,7 @@ Match Encoder::getBestMatch(Match* matchCandidates, int matchCandidateCount)
 	return bestMatch;
 }
 
-int Encoder::encodeMatch(const Match& match, void* destination)
+int Compressor::encodeMatch(const Match& match, void* destination)
 {
 	assert(match.length <= MAX_MATCH_LENGTH);
 	assert(match.length == 0 || match.offset < DICTIONARY_SIZE);
@@ -273,12 +271,12 @@ int Encoder::encodeMatch(const Match& match, void* destination)
 	return size;
 }
 
-int Encoder::getMatchCodedSize(const Match& match)
+int Compressor::getMatchCodedSize(const Match& match)
 {
 	return encodeMatch(match, 0);
 }
 
-int Encoder::getSizeCodedSize(size_t size)
+int Compressor::getSizeCodedSize(uint64_t size)
 {
 	if (size <= UCHAR_MAX)
 	{
@@ -298,12 +296,12 @@ int Encoder::getSizeCodedSize(size_t size)
 	return 8;
 }
 
-int Encoder::getHeaderSize(size_t maxCompressedSize)
+int Compressor::getHeaderSize(uint64_t maxCompressedSize)
 {
 	return 1 + 2 * getSizeCodedSize(maxCompressedSize);
 }
 
-void Encoder::encodeHeader(const Header& header, size_t maxCompressedSize, void* destination)
+void Compressor::encodeHeader(const Header& header, uint64_t maxCompressedSize, void* destination)
 {
 	assert(header.version < 8);
 
@@ -347,7 +345,7 @@ void Encoder::encodeHeader(const Header& header, size_t maxCompressedSize, void*
 	}
 }
 
-size_t Encoder::getMaxCompressedSize(size_t size)
+uint64_t Compressor::getMaxCompressedSize(uint64_t size)
 {
 	// The header + the original uncompressed data
 	return getHeaderSize(size) + size;

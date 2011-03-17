@@ -17,28 +17,25 @@
 #pragma once
 
 #include "Common.h"
-#include "Dictionary.h"
 
 namespace doboz {
 
-class Encoder
+struct CompressionInfo
+{
+	uint64_t uncompressedSize;
+	uint64_t compressedSize;
+	int version;
+};
+
+class Decompressor
 {
 public:
-	static size_t getMaxCompressedSize(size_t size);
-
-	Result encode(const void* source, size_t sourceSize, void* destination, size_t destinationSize, size_t& compressedSize);
+	Result decompress(const void* source, size_t sourceSize, void* destination, size_t destinationSize);
+	Result getCompressionInfo(const void* source, size_t sourceSize, CompressionInfo& compressionInfo);
 
 private:
-	detail::Dictionary dictionary_;
-
-	static int getSizeCodedSize(size_t size);
-	static int getHeaderSize(size_t maxCompressedSize);
-
-	Result encodeStored(const void* source, size_t sourceSize, void* destination, size_t& compressedSize);
-	detail::Match getBestMatch(detail::Match* matchCandidates, int matchCandidateCount);
-	int encodeMatch(const detail::Match& match, void* destination);
-	int getMatchCodedSize(const detail::Match& match);
-	void encodeHeader(const detail::Header& header, size_t maxCompressedSize, void* destination);
+	int decodeMatch(detail::Match& match, const void* source);
+	Result decodeHeader(detail::Header& header, const void* source, size_t sourceSize, int& headerSize);
 };
 
 } // namespace doboz

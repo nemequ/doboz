@@ -2,11 +2,11 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source">
-      <UniqueIdentifier>{09a5d903-527c-4af4-8393-cf0f4614d179}</UniqueIdentifier>
+      <UniqueIdentifier>{b96ae5ed-9f53-496c-8d66-118671ec7cb4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\Source\DobozCLI\Main.cpp">
+    <ClCompile Include="..\..\..\Source\DobozCLI\DobozCLI.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

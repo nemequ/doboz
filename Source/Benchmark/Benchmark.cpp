@@ -15,10 +15,11 @@
  */
 
 #include <cstdio>
+#include <climits>
 #include <iostream>
 #include <algorithm>
-#include "Doboz/Encoder.h"
-#include "Doboz/Decoder.h"
+#include "Doboz/Compressor.h"
+#include "Doboz/Decompressor.h"
 #include "Utils/Timer.h"
 #include "qlz/quicklz.h"
 #include "zlib/zlib.h"
@@ -40,8 +41,8 @@ char* decompressedBuffer = 0;
 
 struct DobozCodec
 {
-	doboz::Encoder encoder;
-	doboz::Decoder decoder;
+	doboz::Compressor compressor;
+	doboz::Decompressor decompressor;
 
 	const char* getName()
 	{
@@ -50,18 +51,18 @@ struct DobozCodec
 	
 	size_t getMaxCompressedSize()
 	{
-		return doboz::Encoder::getMaxCompressedSize(originalSize);
+		return static_cast<size_t>(doboz::Compressor::getMaxCompressedSize(originalSize));
 	}
 
 	bool compress()
 	{
-		doboz::Result result = encoder.encode(originalBuffer, originalSize, compressedBuffer, compressedBufferSize, compressedSize);
+		doboz::Result result = compressor.compress(originalBuffer, originalSize, compressedBuffer, compressedBufferSize, compressedSize);
 		return result == doboz::RESULT_OK;
 	}
 
 	bool decompress()
 	{
-		doboz::Result result = decoder.decode(compressedBuffer, compressedSize, decompressedBuffer, originalSize);
+		doboz::Result result = decompressor.decompress(compressedBuffer, compressedSize, decompressedBuffer, originalSize);
 		return result == doboz::RESULT_OK;
 	}
 };
@@ -178,26 +179,45 @@ struct ZlibCodec
 };
 
 
+#if defined(_WIN32)
+#define FSEEK64 _fseeki64
+#define FTELL64 _ftelli64
+#else
+#define FSEEK64 fseeko64
+#define FTELL64 ftello64
+#endif
+
 bool loadFile(char* filename)
 {
 	FILE* file = fopen(filename, "rb");
-
 	if (file == 0)
 	{
-		cout << "ERROR: Could not open file \"" << filename << "\"" << endl;
-		return 1;
+		cout << "ERROR: Cannot open file \"" << filename << "\"" << endl;
+		return false;
 	}
 
-	fseek(file, 0, SEEK_END);
-	originalSize = ftell(file);
-	fseek(file, 0, SEEK_SET);
+	FSEEK64(file, 0, SEEK_END);
+	uint64_t originalSize64 = FTELL64(file);
+	uint64_t maxCompressedSize64 = originalSize64 + max(originalSize64 / 4, static_cast<uint64_t>(1024));
+	if (maxCompressedSize64 > SIZE_MAX)
+	{
+		cout << "ERROR: File \"" << filename << "\" is too large" << endl;
+		fclose(file);
+		return false;
+	}
+	originalSize = static_cast<size_t>(originalSize64);
+	FSEEK64(file, 0, SEEK_SET);
 
 	cout << "Loading file \"" << filename << "\"..." << endl;
-	cout << "File size: " << static_cast<double>(originalSize) / MEGABYTE << " MB" << endl;
 
 	originalBuffer = new char[originalSize];
 
-	fread(originalBuffer, 1, originalSize, file);
+	if (fread(originalBuffer, 1, originalSize, file) != originalSize)
+	{
+		cout << "ERROR: I/O error" << endl;
+		fclose(file);
+		return false;
+	}
 	fclose(file);
 	return true;
 }
