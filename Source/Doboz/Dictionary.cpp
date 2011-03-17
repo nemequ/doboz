@@ -14,7 +14,6 @@
  * not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cassert>
 #include <algorithm>
 #include "Dictionary.h"
 
