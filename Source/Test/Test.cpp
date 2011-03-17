@@ -82,7 +82,7 @@ bool loadFile(char* filename)
 
 void initializeTests()
 {
-	compressedBufferSize = doboz::Compressor::getMaxCompressedSize(originalSize);
+	compressedBufferSize = static_cast<size_t>(doboz::Compressor::getMaxCompressedSize(originalSize));
 	compressedBuffer = new char[compressedBufferSize];
 	tempCompressedBuffer = new char[compressedBufferSize];
 
