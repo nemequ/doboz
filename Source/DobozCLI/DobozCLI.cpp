@@ -25,6 +25,7 @@ using namespace std;
 
 const size_t MAX_BUFFER_SIZE = static_cast<size_t>(-1);
 const double MEGABYTE = 1024.0 * 1024.0;
+const size_t KILOBYTE = 1024;
 
 char* inputBuffer = 0;
 size_t inputSize;
@@ -61,6 +62,7 @@ bool loadInputFile(char* filename)
 	FSEEK64(file, 0, SEEK_SET);
 
 	cout << "Loading file \"" << filename << "\"..." << endl;
+	cout << "Size: " << static_cast<double>(inputSize) / MEGABYTE << " MB (" << inputSize / KILOBYTE << " KB)" << endl;
 
 	inputBuffer = new char[inputSize];
 
@@ -127,8 +129,6 @@ int main(int argc, char* argv[])
 			return 1;
 		}
 
-		cout << "Size: " << inputSize / MEGABYTE << " MB" << endl;
-
 		size_t outputBufferSize = static_cast<size_t>(doboz::Compressor::getMaxCompressedSize(inputSize));
 		outputBuffer = new char[outputBufferSize];
 
@@ -148,7 +148,7 @@ int main(int argc, char* argv[])
 		double mbps = static_cast<double>(inputSize) / MEGABYTE / compressionTime;
 		double compressionRatio = static_cast<double>(outputSize) / static_cast<double>(inputSize) * 100.0;
 		cout << "Compressed in " << compressionTime << " s, " << mbps << " MB/s" << endl;
-		cout << "Compressed size: " << outputSize / MEGABYTE << " MB" << endl;
+		cout << "Compressed size: " << static_cast<double>(outputSize) / MEGABYTE << " MB (" << outputSize / KILOBYTE << " KB)" << endl;
 		cout << "Compression ratio: " << compressionRatio << "%" << endl;
 
 		if (!saveOutputFile(argv[3]))

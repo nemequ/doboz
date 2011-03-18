@@ -28,6 +28,7 @@ using namespace afra;
 
 const size_t MAX_BUFFER_SIZE = static_cast<size_t>(-1);
 const double MEGABYTE = 1024.0 * 1024.0;
+const size_t KILOBYTE = 1024;
 
 char* originalBuffer = 0;
 size_t originalSize;
@@ -68,6 +69,7 @@ bool loadFile(char* filename)
 	FSEEK64(file, 0, SEEK_SET);
 
 	cout << "Loading file \"" << filename << "\"..." << endl;
+	cout << "Size: " << static_cast<double>(originalSize) / MEGABYTE << " MB (" << originalSize / KILOBYTE << " KB)" << endl;
 
 	originalBuffer = new char[originalSize];
 
