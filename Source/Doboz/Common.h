@@ -17,6 +17,7 @@
 #pragma once
 
 #include <cstdint>
+#include <climits>
 #include <cassert>
 
 #if defined(_MSC_VER)

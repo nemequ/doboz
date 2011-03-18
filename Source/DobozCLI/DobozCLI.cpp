@@ -14,8 +14,8 @@
  * not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstdio>
 #include <iostream>
-#include <climits>
 #include "Doboz/Compressor.h"
 #include "Doboz/Decompressor.h"
 #include "Utils/Timer.h"

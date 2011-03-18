@@ -15,7 +15,6 @@
  */
 
 #include <cstdio>
-#include <climits>
 #include <iostream>
 #include <algorithm>
 #include "Doboz/Compressor.h"
