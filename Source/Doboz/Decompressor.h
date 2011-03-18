@@ -30,7 +30,15 @@ struct CompressionInfo
 class Decompressor
 {
 public:
+	// Decompresses a block of data
+	// The source and destination buffers must not overlap
+	// This operation is memory safe
+	// On success, returns RESULT_OK
 	Result decompress(const void* source, size_t sourceSize, void* destination, size_t destinationSize);
+
+	// Retrieves information about a compressed block of data
+	// This operation is memory safe
+	// On success, returns RESULT_OK and outputs the compression information
 	Result getCompressionInfo(const void* source, size_t sourceSize, CompressionInfo& compressionInfo);
 
 private:

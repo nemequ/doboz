@@ -24,8 +24,14 @@ namespace doboz {
 class Compressor
 {
 public:
+	// Returns the maximum compressed size of any block of data with the specified size
+	// This function should be used to determine the size of the compression destination buffer
 	static uint64_t getMaxCompressedSize(uint64_t size);
 
+	// Compresses a block of data
+	// The source and destination buffers must not overlap and their size must be greater than 0
+	// This operation is memory safe
+	// On success, returns RESULT_OK and outputs the compressed size
 	Result compress(const void* source, size_t sourceSize, void* destination, size_t destinationSize, size_t& compressedSize);
 
 private:

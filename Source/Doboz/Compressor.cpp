@@ -24,6 +24,9 @@ using namespace detail;
 
 Result Compressor::compress(const void* source, size_t sourceSize, void* destination, size_t destinationSize, size_t& compressedSize)
 {
+	assert(source != 0);
+	assert(destination != 0);
+
 	if (sourceSize == 0)
 	{
 		return RESULT_ERROR_BUFFER_TOO_SMALL;
@@ -38,6 +41,7 @@ Result Compressor::compress(const void* source, size_t sourceSize, void* destina
 	const uint8_t* inputBuffer = static_cast<const uint8_t*>(source);
 	uint8_t* outputBuffer = static_cast<uint8_t*>(destination);
 	uint8_t* outputEnd = outputBuffer + destinationSize;
+	assert((inputBuffer + sourceSize <= outputBuffer || inputBuffer >= outputEnd) && "The source and destination buffers must not overlap.");
 
 	// Compute the maximum output end pointer
 	// We use this to determine whether we should store the data instead of compressing it

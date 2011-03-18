@@ -23,11 +23,17 @@ using namespace detail;
 
 Result Decompressor::decompress(const void* source, size_t sourceSize, void* destination, size_t destinationSize)
 {
+	assert(source != 0);
+	assert(destination != 0);
+
 	const uint8_t* inputBuffer = static_cast<const uint8_t*>(source);
 	const uint8_t* inputIterator = inputBuffer;
 
 	uint8_t* outputBuffer = static_cast<uint8_t*>(destination);
 	uint8_t* outputIterator = outputBuffer;
+
+	assert((inputBuffer + sourceSize <= outputBuffer || inputBuffer >= outputBuffer + destinationSize) &&
+		"The source and destination buffers must not overlap.");
 
 	// Decode the header
 	Header header;
@@ -309,6 +315,8 @@ Result Decompressor::decodeHeader(Header& header, const void* source, size_t sou
 
 Result Decompressor::getCompressionInfo(const void* source, size_t sourceSize, CompressionInfo& compressionInfo)
 {
+	assert(source != 0);
+
 	// Decode the header
 	Header header;
 	int headerSize;
