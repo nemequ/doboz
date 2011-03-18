@@ -25,6 +25,7 @@
 using namespace std;
 using namespace afra;
 
+const size_t MAX_BUFFER_SIZE = static_cast<size_t>(-1);
 const double MEGABYTE = 1024.0 * 1024.0;
 
 char* originalBuffer = 0;
@@ -56,7 +57,7 @@ bool loadFile(char* filename)
 
 	FSEEK64(file, 0, SEEK_END);
 	uint64_t originalSize64 = FTELL64(file);
-	if (doboz::Compressor::getMaxCompressedSize(originalSize64) > SIZE_MAX)
+	if (doboz::Compressor::getMaxCompressedSize(originalSize64) > MAX_BUFFER_SIZE)
 	{
 		cout << "ERROR: File \"" << filename << "\" is too large" << endl;
 		fclose(file);

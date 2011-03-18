@@ -23,6 +23,7 @@
 using namespace afra;
 using namespace std;
 
+const size_t MAX_BUFFER_SIZE = static_cast<size_t>(-1);
 const double MEGABYTE = 1024.0 * 1024.0;
 
 char* inputBuffer = 0;
@@ -50,7 +51,7 @@ bool loadInputFile(char* filename)
 
 	FSEEK64(file, 0, SEEK_END);
 	uint64_t originalSize64 = FTELL64(file);
-	if (doboz::Compressor::getMaxCompressedSize(originalSize64) > SIZE_MAX)
+	if (doboz::Compressor::getMaxCompressedSize(originalSize64) > MAX_BUFFER_SIZE)
 	{
 		cout << "ERROR: File \"" << filename << "\" is too large" << endl;
 		fclose(file);
@@ -178,7 +179,7 @@ int main(int argc, char* argv[])
 			return 1;
 		}
 
-		if (compressionInfo.uncompressedSize > SIZE_MAX)
+		if (compressionInfo.uncompressedSize > MAX_BUFFER_SIZE)
 		{
 			cout << "ERROR: Decompressed data is too large" << endl;
 			cleanup();

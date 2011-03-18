@@ -26,6 +26,7 @@
 using namespace std;
 using namespace afra;
 
+const size_t MAX_BUFFER_SIZE = static_cast<size_t>(-1);
 const double MEGABYTE = 1024.0 * 1024.0;
 
 char* originalBuffer = 0;
@@ -198,7 +199,7 @@ bool loadFile(char* filename)
 	FSEEK64(file, 0, SEEK_END);
 	uint64_t originalSize64 = FTELL64(file);
 	uint64_t maxCompressedSize64 = originalSize64 + max(originalSize64 / 4, static_cast<uint64_t>(1024));
-	if (maxCompressedSize64 > SIZE_MAX)
+	if (maxCompressedSize64 > MAX_BUFFER_SIZE)
 	{
 		cout << "ERROR: File \"" << filename << "\" is too large" << endl;
 		fclose(file);
