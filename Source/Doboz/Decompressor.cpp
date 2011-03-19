@@ -233,17 +233,17 @@ DOBOZ_FORCEINLINE int Decompressor::decodeMatch(Match& match, const void* source
 	}
 	lut[] =
 	{
-		{0xff,        2,   0, 0, 1}, // 000
-		{0xffff,      2,   0, 0, 2}, // 001
-		{0xffff,      6,  15, 2, 2}, // 010
-		{0xffffff,    8,  31, 3, 3}, // 011
-		{0xff,        2,   0, 0, 1}, // 100 = 000
-		{0xffff,      2,   0, 0, 2}, // 101 = 001
-		{0xffff,      6,  15, 2, 2}, // 110 = 011
+		{0xff,        2,   0, 0, 1}, // (0)00
+		{0xffff,      2,   0, 0, 2}, // (0)01
+		{0xffff,      6,  15, 2, 2}, // (0)10
+		{0xffffff,    8,  31, 3, 3}, // (0)11
+		{0xff,        2,   0, 0, 1}, // (1)00 = (0)00
+		{0xffff,      2,   0, 0, 2}, // (1)01 = (0)01
+		{0xffff,      6,  15, 2, 2}, // (1)10 = (0)10
 		{0xffffffff, 11, 255, 3, 4}, // 111
 	};
 
-	// Read the maximum number of bytes a match is coded in (the machine word size)
+	// Read the maximum number of bytes a match is coded in (4)
 	uint32_t word = fastRead(source, WORD_SIZE);
 
 	// Compute the decoding lookup table entry index: the lowest 3 bits of the encoded match

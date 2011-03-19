@@ -243,22 +243,22 @@ int Compressor::encodeMatch(const Match& match, void* destination)
 
 	if (lengthCode == 0 && offsetCode < 64)
 	{
-		word = offsetCode << 2; // 000
+		word = offsetCode << 2; // 00
 		size = 1;
 	}
 	else if (lengthCode == 0 && offsetCode < 16384)
 	{
-		word = (offsetCode << 2) | 1; // 001
+		word = (offsetCode << 2) | 1; // 01
 		size = 2;
 	}
 	else if (lengthCode < 16 && offsetCode < 1024)
 	{
-		word = (offsetCode << 6) | (lengthCode << 2) | 2; // 010
+		word = (offsetCode << 6) | (lengthCode << 2) | 2; // 10
 		size = 2;
 	}
 	else if (lengthCode < 32 && offsetCode < 65536)
 	{
-		word = (offsetCode << 8) | (lengthCode << 3) | 3; // 011
+		word = (offsetCode << 8) | (lengthCode << 3) | 3; // 11
 		size = 3;
 	}
 	else
