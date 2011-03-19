@@ -107,9 +107,9 @@ Result Decompressor::decompress(const void* source, size_t sourceSize, void* des
 				// We copy literals in runs of up to 4 because it's faster than copying one by one
 
 				// Copy implicitly 4 literals regardless of the run length
-				assert(inputIterator + 4 <= inputEnd);
-				assert(outputIterator + 4 <= outputEnd);
-				fastWrite(outputIterator, fastRead(inputIterator, 4), 4);
+				assert(inputIterator + WORD_SIZE <= inputEnd);
+				assert(outputIterator + WORD_SIZE <= outputEnd);
+				fastWrite(outputIterator, fastRead(inputIterator, WORD_SIZE), WORD_SIZE);
 
 				// Get the run length using a lookup table
 				static const int8_t literalRunLengthTable[16] = {4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0};
